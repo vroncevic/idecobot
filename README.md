@@ -32,7 +32,7 @@ other information that should be provided before the modules are installed.
     - [myCobot DSL Instruction Reference](#mycobot-dsl-instruction-reference)
     - [Example `.cobot` Program: Industrial Pick & Place](#example-cobot-program-industrial-pick--place)
   - [📡 Serial Communication Protocol](#-serial-communication-protocol)
-    - [Packet Framing (PC $\leftrightarrow$ Robot)](#packet-framing-pc-%E2%86%94-robot)
+    - [Packet Framing (PC $\leftrightarrow$ Robot)](#packet-framing-pc-%5Cleftrightarrow-robot)
     - [Protocol Command Set](#protocol-command-set)
 - [📊 Code coverage](#-code-coverage)
 - [🛠 Usage](#-usage)
