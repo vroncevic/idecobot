@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Reports
+*.report
+*.xml
+idecobot.json
+*report*.json
+*coverage*.json
+.coverage
+htmlcov/
+.coverage.idecobot
+dist/
+build/
+*.egg-info/

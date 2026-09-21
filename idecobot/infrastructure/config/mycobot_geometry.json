@@ -1,0 +1,20 @@
+{
+    "j1_min_deg": -165.0,
+    "j1_max_deg": 165.0,
+    "j2_min_deg": -165.0,
+    "j2_max_deg": 165.0,
+    "j3_min_deg": -165.0,
+    "j3_max_deg": 165.0,
+    "j4_min_deg": -165.0,
+    "j4_max_deg": 165.0,
+    "j5_min_deg": -165.0,
+    "j5_max_deg": 165.0,
+    "j6_min_deg": -175.0,
+    "j6_max_deg": 175.0,
+    "max_reach_mm": 285.0,
+    "min_z_mm": -10.0,
+    "max_jerk_deg": 60.0,
+    "min_speed": 1,
+    "max_speed": 100,
+    "default_speed": 30
+}

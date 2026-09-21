@@ -1,0 +1,20 @@
+{
+    "j1_min_deg": "float",
+    "j1_max_deg": "float",
+    "j2_min_deg": "float",
+    "j2_max_deg": "float",
+    "j3_min_deg": "float",
+    "j3_max_deg": "float",
+    "j4_min_deg": "float",
+    "j4_max_deg": "float",
+    "j5_min_deg": "float",
+    "j5_max_deg": "float",
+    "j6_min_deg": "float",
+    "j6_max_deg": "float",
+    "max_reach_mm": "float",
+    "min_z_mm": "float",
+    "max_jerk_deg": "float",
+    "min_speed": "integer",
+    "max_speed": "integer",
+    "default_speed": "integer"
+}

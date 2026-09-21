@@ -1,0 +1,104 @@
+# -*- coding: UTF-8 -*-
+
+'''
+Module
+    factory.py
+Copyright
+    Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
+    idecobot is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    idecobot is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License along
+    with this program. If not, see <http://www.gnu.org/licenses/>.
+Info
+    Encapsulates core CLI components for simplification of CLI bundle.
+'''
+
+from __future__ import annotations
+
+from ats_utilities.option.imanager import IOptionManager
+
+from idecobot.core.service.iservice import IService
+from idecobot.infrastructure.gui.igui import IGUI
+from idecobot.infrastructure.cli.setup.options import CLIBundleOptions
+from idecobot.infrastructure.cli.setup.opt_validator import CLIBundleOptionsValidator
+from idecobot.infrastructure.cli.setup.bundle import CLIBundle
+from idecobot.infrastructure.cli.setup.keys import CLIBundleKeys
+from idecobot.infrastructure.cli.setup.registry import CLIBundleRegistry
+from idecobot.infrastructure.cli.setup.dependencies import CLIBundleDependencies
+from idecobot.infrastructure.command.command import CommandBundle
+from idecobot.infrastructure.command.icommand_definition import ICommandDefinition
+from idecobot.infrastructure.command.icommand_executor import ICommandExecutor
+from idecobot.infrastructure.command.studio_command_definition import StudioCommandDefinition
+from idecobot.infrastructure.command.studio_command_executor import StudioCommandExecutor
+
+__author__ = 'Vladimir Roncevic'
+__copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
+__credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
+__license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
+__version__ = '1.0.0'
+__maintainer__ = 'Vladimir Roncevic'
+__email__ = 'elektron.ronca@gmail.com'
+__status__ = 'Updated'
+
+
+class CLIBundleFactory:
+    '''
+        Factory for creating the CLI bundle.
+
+        It defines:
+
+            :methods:
+                | create_bundle - Creates the CLI bundle with optional pre-configured options.
+                | get_version - Returns the factory version.
+    '''
+
+    @classmethod
+    def create_bundle(cls, options: CLIBundleOptions) -> CLIBundle:
+        '''
+            Creates the CLI bundle with optional pre-configured options.
+
+            :param options: The CLI bundle options.
+            :return: The CLI bundle.
+            :exceptions:
+                | ATSValueError: The CLI bundle options must be provided and have proper values.
+                | ATSTypeError:  The CLI bundle options must be an instance of Mapping and its
+                |                attributes must be instances of their respective types.
+                | ATSValueError: The CLI bundle dependencies must be provided and have proper values.
+                | ATSTypeError:  The CLI bundle dependencies must be an instance of Mapping and its
+                |                attributes must be instances of their respective types.
+                | ATSValueError: The CLI bundle must be provided and have proper values.
+                | ATSTypeError:  The CLI bundle must be an instance of CLIBundle and
+                |                its attributes must be instances of their respective types.
+        '''
+        CLIBundleOptionsValidator.validate(options)
+
+        service: IService = options[CLIBundleKeys.OPTION_SERVICE]
+        parser: IOptionManager = options[CLIBundleKeys.OPTION_PARSER]
+        gui: IGUI = options[CLIBundleKeys.OPTION_GUI]
+
+        studio_definition: ICommandDefinition = StudioCommandDefinition()
+        studio_executor: ICommandExecutor[ICommandDefinition, object, object, object] = StudioCommandExecutor(
+            definition=studio_definition,
+            gui=gui
+        )
+        studio_cmd: CommandBundle = CommandBundle(definition=studio_definition, executor=studio_executor)
+
+        return CLIBundleRegistry.create_bundle(
+            dependencies=CLIBundleDependencies(service=service, parser=parser, commands=[studio_cmd])
+        )
+
+    @classmethod
+    def get_version(cls) -> str:
+        '''
+            Returns the factory version.
+
+            :return: The factory version string.
+            :exceptions: None.
+        '''
+        return __version__
