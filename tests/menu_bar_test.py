@@ -33,7 +33,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -112,7 +112,7 @@ class TestMenuBar(TestCase):
         self.assertIsInstance(bar, IMenuBar)
         self.assertEqual(bar.constants, self.constants)
         self.assertIsInstance(bar.menu_bar, Menu)
-        self.assertEqual(bar.get_version(), '1.0.1')
+        self.assertEqual(bar.get_version(), '1.0.2')
 
     def test_new_script(self) -> None:
         '''
