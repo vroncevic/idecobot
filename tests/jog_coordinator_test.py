@@ -37,7 +37,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -210,6 +210,8 @@ class TestJogCoordinator(TestCase):
         '''
             Tests gripper actuation and servo power toggle.
         '''
+        self.assertEqual(self.constants.grip_action_grip, 1)
+        self.assertEqual(self.constants.grip_action_release, 0)
         self.assertTrue(self.coordinator.actuate_gripper(state=1, speed=50))
         self.assertEqual(self.controller.gripper_state, 1)
 

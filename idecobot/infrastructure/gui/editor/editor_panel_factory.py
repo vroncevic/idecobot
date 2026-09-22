@@ -31,15 +31,16 @@ from idecobot.infrastructure.gui.editor.code_editor import CodeEditor
 from idecobot.infrastructure.gui.editor.editor_constants import EditorConstants
 from idecobot.infrastructure.gui.editor.editor_coordinator import EditorCoordinator
 from idecobot.infrastructure.gui.editor.editor_panel import EditorPanel
-from idecobot.infrastructure.gui.editor.example_catalog import ExampleCatalog
 from idecobot.infrastructure.gui.theme.color_palette import ColorPalette
 from idecobot.infrastructure.gui.theme.font_config import FontConfig
+from idecobot.infrastructure.storage.iscript_storage_service import IScriptStorageService
+from idecobot.infrastructure.storage.iworkspace_service import IWorkspaceService
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -60,6 +61,8 @@ class EditorPanelFactory:
         cls,
         parent: Frame,
         dsl_service: IMyCobotDslService,
+        workspace_service: IWorkspaceService,
+        storage: IScriptStorageService,
         on_bytecode: Callable[[Sequence[MyCobotFrame]], None],
         on_log: Callable[[str], None],
         palette: ColorPalette,
@@ -71,6 +74,8 @@ class EditorPanelFactory:
 
             :param parent: Parent container Frame.
             :param dsl_service: Injected IMyCobotDslService domain abstraction.
+            :param workspace_service: Injected IWorkspaceService user workspace manager.
+            :param storage: Injected IScriptStorageService file loader/saver.
             :param on_bytecode: Callback receiving compiled bytecode frames.
             :param on_log: Logging callback.
             :param palette: Injected ColorPalette design tokens.
@@ -81,6 +86,8 @@ class EditorPanelFactory:
         '''
         coordinator: EditorCoordinator = EditorCoordinator(
             dsl_service=dsl_service,
+            workspace_service=workspace_service,
+            storage=storage,
             on_bytecode=on_bytecode,
             on_log=on_log,
             constants=constants
@@ -126,9 +133,11 @@ class EditorPanelFactory:
         )
         lbl_ex.pack(side=LEFT, padx=constants.template_padx)
 
+        templates: Sequence[str] = coordinator.get_available_templates()
+
         cb_examples: Combobox = Combobox(
             header,
-            values=list(coordinator.get_available_templates()),
+            values=list(templates),
             width=constants.examples_width,
             state=constants.state_readonly
         )
@@ -163,7 +172,14 @@ class EditorPanelFactory:
             lambda _: panel.on_example_selected()
         )
 
-        default_ex: str = ExampleCatalog.get_example(constants.default_example)
-        editor.set_text(default_ex)
+        if constants.default_example in templates:
+            default_ex: str = coordinator.load_template(constants.default_example)
+            editor.set_text(default_ex)
+            cb_examples.set(constants.default_example)
+
+        elif templates:
+            default_ex = coordinator.load_template(templates[0])
+            editor.set_text(default_ex)
+            cb_examples.set(templates[0])
 
         return panel

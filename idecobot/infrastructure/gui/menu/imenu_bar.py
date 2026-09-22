@@ -23,11 +23,15 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
+from idecobot.infrastructure.gui.menu.idiagnostics_menu_handler import IDiagnosticsMenuHandler
+from idecobot.infrastructure.gui.menu.ifile_menu_handler import IFileMenuHandler
+from idecobot.infrastructure.gui.menu.ihelp_menu_handler import IHelpMenuHandler
+
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -36,48 +40,41 @@ __status__ = 'Updated'
 @runtime_checkable
 class IMenuBar(Protocol):
     '''
-        Structural interface protocol for top-level menu bar operations.
+    Structural interface protocol for top-level menu bar coordinating domain handlers.
 
-        It defines:
+    It defines:
 
-            :methods:
-                | open_script_dialog - Shows open file dialog and loads script.
-                | save_script_dialog - Shows save file dialog and saves script.
-                | new_script - Resets editor to empty template script.
-                | show_about_dialog - Displays about dialog.
-                | show_dsl_help - Displays DSL syntax reference dialog.
-                | get_version - Returns protocol version string.
+        :methods:
+            | get_file_handler - Returns the file menu actions handler.
+            | get_diagnostics_handler - Returns the diagnostics menu actions handler.
+            | get_help_handler - Returns the help menu actions handler.
+            | get_version - Returns protocol version string.
     '''
 
-    def open_script_dialog(self) -> None:
+    def get_file_handler(self) -> IFileMenuHandler:
         '''
-            Shows open file dialog and loads script into editor.
+        Returns the file menu actions handler.
+
+        :return: IFileMenuHandler instance.
         '''
 
-    def save_script_dialog(self) -> None:
+    def get_diagnostics_handler(self) -> IDiagnosticsMenuHandler:
         '''
-            Shows save file dialog and saves current script.
+        Returns the diagnostics menu actions handler.
+
+        :return: IDiagnosticsMenuHandler instance.
         '''
 
-    def new_script(self) -> None:
+    def get_help_handler(self) -> IHelpMenuHandler:
         '''
-            Resets editor to empty template script.
-        '''
+        Returns the help menu actions handler.
 
-    def show_about_dialog(self) -> None:
-        '''
-            Displays about dialog.
-        '''
-
-    def show_dsl_help(self) -> None:
-        '''
-            Displays DSL syntax reference dialog.
+        :return: IHelpMenuHandler instance.
         '''
 
     def get_version(self) -> str:
         '''
-            Returns protocol version string.
+        Returns protocol version string.
 
-            :return: Version string.
+        :return: Version string.
         '''
-

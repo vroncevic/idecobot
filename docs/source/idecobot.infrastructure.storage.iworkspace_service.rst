@@ -1,7 +1,7 @@
-idecobot.infrastructure.gui.editor.example\_catalog module
+idecobot.infrastructure.storage.iworkspace\_service module
 ==========================================================
 
-.. automodule:: idecobot.infrastructure.gui.editor.example_catalog
+.. automodule:: idecobot.infrastructure.storage.iworkspace_service
    :members:
    :undoc-members:
    :show-inheritance:

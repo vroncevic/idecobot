@@ -36,7 +36,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -164,6 +164,12 @@ class IDECobotGUI:
             self.append_log(
                 self._constants.log_connected.format(port=port, baud=baud)
             )
+
+            def on_connected_settled() -> None:
+                self._service.get_controller().get_transport().flush()
+                self._bundle.menu_bar.get_diagnostics_handler().run_startup_diagnostics()
+
+            self._bundle.root.after(1200, on_connected_settled)
         else:
             self._bundle.toolbar.set_connected(False)
             self.append_log(self._constants.log_connect_failed.format(port=port))

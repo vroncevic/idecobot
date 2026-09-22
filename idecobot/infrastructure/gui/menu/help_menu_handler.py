@@ -1,0 +1,94 @@
+# -*- coding: UTF-8 -*-
+
+'''
+Module
+    help_menu_handler.py
+Copyright
+    Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
+    idecobot is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    idecobot is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License along
+    with this program. If not, see <http://www.gnu.org/licenses/>.
+Info
+    Handles help menu actions: about and DSL reference dialogs.
+'''
+
+from __future__ import annotations
+
+from tkinter import Tk
+from tkinter.messagebox import showinfo
+
+from idecobot.infrastructure.gui.menu.menu_bar_constants import MenuBarConstants
+
+__author__ = 'Vladimir Roncevic'
+__copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
+__credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
+__license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
+__version__ = '1.0.3'
+__maintainer__ = 'Vladimir Roncevic'
+__email__ = 'elektron.ronca@gmail.com'
+__status__ = 'Updated'
+
+
+class HelpMenuHandler:
+    '''
+    Handles help menu actions: about and DSL reference dialogs.
+
+    It defines:
+
+        :attributes:
+            | _root - Injected root Tk window.
+            | _constants - Injected MenuBarConstants configuration.
+        :methods:
+            | __init__ - Initializes help menu handler with root window and constants.
+            | show_about_dialog - Displays application about dialog.
+            | show_dsl_help - Displays DSL syntax reference dialog.
+            | get_version - Returns handler version string.
+    '''
+
+    _root: Tk
+    _constants: MenuBarConstants
+
+    def __init__(self, root: Tk, constants: MenuBarConstants) -> None:
+        '''
+        Initializes help menu handler with root window and constants.
+
+        :param root: Injected root Tk window.
+        :param constants: Injected MenuBarConstants configuration.
+        '''
+        self._root = root
+        self._constants = constants
+
+    def show_about_dialog(self) -> None:
+        '''
+        Displays application about dialog.
+        '''
+        showinfo(
+            self._constants.title_about_dialog,
+            self._constants.about_text,
+            parent=self._root
+        )
+
+    def show_dsl_help(self) -> None:
+        '''
+        Displays DSL syntax reference dialog.
+        '''
+        showinfo(
+            self._constants.title_help_dialog,
+            self._constants.help_text,
+            parent=self._root
+        )
+
+    def get_version(self) -> str:
+        '''
+        Returns handler version string.
+
+        :return: Version string.
+        '''
+        return __version__

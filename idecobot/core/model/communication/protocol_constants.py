@@ -27,7 +27,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -56,7 +56,7 @@ class ProtocolConstants:
                 | cmd_set_gripper - Binary command ID commanding end-effector gripper (0x66).
                 | cmd_nop - Binary NOP/idle command ID (0x00).
                 | angle_scale_factor - Fixed-point scaling factor for joint angles (100.0).
-                | coord_scale_factor - Fixed-point scaling factor for coordinates (100.0).
+                | coord_scale_factor - Fixed-point scaling factor for linear coordinates (10.0).
                 | default_frame_delay - Recommended post-transmission pause in seconds (0.05).
                 | servo_delay - Recommended post-transmission pause for power/relax in seconds (0.1).
                 | gripper_delay - Recommended post-transmission pause for gripper in seconds (0.5).
@@ -68,6 +68,11 @@ class ProtocolConstants:
                 | format_coords_command - Struct pack format for SEND_COORDS payload ('>6hBB').
                 | format_gripper_command - Struct pack format for SET_GRIPPER payload ('>BB').
                 | format_joints_payload - Struct unpack format for joint data payload ('>6h').
+                | cmd_get_coords - Binary command ID querying current Cartesian coordinates (0x23).
+                | cmd_get_servo_voltages - Binary command ID querying joint servo voltages (0xE3).
+                | cmd_get_servo_temps - Binary command ID querying joint servo temperatures (0xE5).
+                | min_servos_response_len - Minimum payload length for 6-servo telemetry responses (6).
+                | full_servos_response_len - Total frame length for 6-servo telemetry responses (11).
     '''
 
     header_byte_1: int = 0xFE
@@ -81,11 +86,14 @@ class ProtocolConstants:
     cmd_release_servos: int = 0x13
     cmd_get_angles: int = 0x20
     cmd_send_angles: int = 0x22
+    cmd_get_coords: int = 0x23
     cmd_send_coords: int = 0x25
+    cmd_get_servo_voltages: int = 0xE3
+    cmd_get_servo_temps: int = 0xE5
     cmd_set_gripper: int = 0x66
     cmd_nop: int = 0x00
     angle_scale_factor: float = 100.0
-    coord_scale_factor: float = 100.0
+    coord_scale_factor: float = 10.0
     default_frame_delay: float = 0.05
     servo_delay: float = 0.1
     gripper_delay: float = 0.5
@@ -93,6 +101,8 @@ class ProtocolConstants:
     min_angles_response_len: int = 12
     min_angles_frame_len: int = 16
     full_angles_response_len: int = 17
+    min_servos_response_len: int = 6
+    full_servos_response_len: int = 11
     format_angles_command: str = '>6hB'
     format_coords_command: str = '>6hBB'
     format_gripper_command: str = '>BB'

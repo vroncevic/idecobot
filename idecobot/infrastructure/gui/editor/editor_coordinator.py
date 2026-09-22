@@ -22,21 +22,21 @@ Info
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
+from os.path import join
 
 from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
 from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic import MyCobotDiagnostic
-from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import (
-    MyCobotDiagnosticSeverity,
-)
+from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import MyCobotDiagnosticSeverity
 from idecobot.core.service.dsl.imycobot_dsl_service import IMyCobotDslService
 from idecobot.infrastructure.gui.editor.editor_constants import EditorConstants
-from idecobot.infrastructure.gui.editor.example_catalog import ExampleCatalog
+from idecobot.infrastructure.storage.iscript_storage_service import IScriptStorageService
+from idecobot.infrastructure.storage.iworkspace_service import IWorkspaceService
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -50,19 +50,25 @@ class EditorCoordinator:
 
             :attributes:
                 | _dsl_service - Injected domain DSL service abstraction.
+                | _workspace_service - Injected user workspace service abstraction.
+                | _storage - Injected script storage service abstraction.
                 | _on_bytecode - Injected callback receiving compiled robot frames.
                 | _on_log - Injected logging callback.
                 | _constants - Injected EditorConstants configuration.
             :methods:
-                | __init__ - Initializes editor coordinator with service, callbacks, constants.
+                | __init__ - Initializes editor coordinator with collaborators.
                 | validate_code - Validates DSL source code and reports diagnostics.
                 | compile_code - Compiles valid DSL code into binary MyCobotFrames.
-                | load_template - Fetches example script text and logs notification.
-                | get_available_templates - Returns list of available example template names.
+                | load_template - Fetches example script text from workspace.
+                | get_available_templates - Returns list of available workspace scripts.
+                | workspace_service - Property returning injected IWorkspaceService.
+                | storage - Property returning injected IScriptStorageService.
                 | constants - Property returning injected EditorConstants.
     '''
 
     _dsl_service: IMyCobotDslService
+    _workspace_service: IWorkspaceService
+    _storage: IScriptStorageService
     _on_bytecode: Callable[[Sequence[MyCobotFrame]], None]
     _on_log: Callable[[str], None]
     _constants: EditorConstants
@@ -70,6 +76,8 @@ class EditorCoordinator:
     def __init__(
         self,
         dsl_service: IMyCobotDslService,
+        workspace_service: IWorkspaceService,
+        storage: IScriptStorageService,
         on_bytecode: Callable[[Sequence[MyCobotFrame]], None],
         on_log: Callable[[str], None],
         constants: EditorConstants
@@ -78,12 +86,16 @@ class EditorCoordinator:
             Initializes editor coordinator.
 
             :param dsl_service: Injected IMyCobotDslService abstraction.
+            :param workspace_service: Injected IWorkspaceService abstraction.
+            :param storage: Injected IScriptStorageService abstraction.
             :param on_bytecode: Injected callback receiving compiled robot frames.
             :param on_log: Injected logging callback.
             :param constants: Injected EditorConstants configuration.
             :exceptions: None.
         '''
         self._dsl_service = dsl_service
+        self._workspace_service = workspace_service
+        self._storage = storage
         self._on_bytecode = on_bytecode
         self._on_log = on_log
         self._constants = constants
@@ -163,25 +175,52 @@ class EditorCoordinator:
 
     def load_template(self, name: str) -> str:
         '''
-            Loads template script text from catalog by name.
+            Loads template script text from user workspace by filename.
 
-            :param name: Template identifier name.
+            :param name: Template script filename.
             :return: Source code string of template.
             :exceptions: None.
         '''
-        script: str = ExampleCatalog.get_example(name)
-        self._on_log(f'{self._constants.log_template_loaded} {name}')
+        file_path: str = join(self._workspace_service.get_workspace_dir(), name)
+        try:
+            script: str = self._storage.load_script(file_path)
+            self._on_log(f'{self._constants.log_template_loaded} {name}')
 
-        return script
+            return script
+
+        except (OSError, ValueError) as err:
+            self._on_log(
+                f'{self._constants.prefix_error}: Failed to load template {name}: {err}'
+            )
+
+            return ''
 
     def get_available_templates(self) -> Sequence[str]:
         '''
-            Returns names of all available example templates.
+            Returns names of all available example templates from workspace.
 
-            :return: Sequence of template name strings.
+            :return: Sequence of template filename strings.
             :exceptions: None.
         '''
-        return ExampleCatalog.get_example_names()
+        return self._workspace_service.list_scripts()
+
+    @property
+    def workspace_service(self) -> IWorkspaceService:
+        '''
+            Returns injected IWorkspaceService.
+
+            :return: IWorkspaceService instance.
+        '''
+        return self._workspace_service
+
+    @property
+    def storage(self) -> IScriptStorageService:
+        '''
+            Returns injected IScriptStorageService.
+
+            :return: IScriptStorageService instance.
+        '''
+        return self._storage
 
     @property
     def constants(self) -> EditorConstants:

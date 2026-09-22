@@ -31,7 +31,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -110,7 +110,9 @@ class MotionCodec:
             :exceptions: None.
         '''
         scaled: list[int] = [
-            int(round(c * self._constants.coord_scale_factor)) for c in coords[:6]
+            int(round(c * self._constants.coord_scale_factor)) if i < 3
+            else int(round(c * self._constants.angle_scale_factor))
+            for i, c in enumerate(coords[:6])
         ]
 
         while len(scaled) < 6:
@@ -177,15 +179,16 @@ class MotionCodec:
             self._constants.format_joints_payload,
             payload[:self._constants.min_angles_response_len]
         )
-        factor: float = self._constants.coord_scale_factor
+        coord_factor: float = self._constants.coord_scale_factor
+        angle_factor: float = self._constants.angle_scale_factor
 
         return (
-            raw_vals[0] / factor,
-            raw_vals[1] / factor,
-            raw_vals[2] / factor,
-            raw_vals[3] / factor,
-            raw_vals[4] / factor,
-            raw_vals[5] / factor
+            raw_vals[0] / coord_factor,
+            raw_vals[1] / coord_factor,
+            raw_vals[2] / coord_factor,
+            raw_vals[3] / angle_factor,
+            raw_vals[4] / angle_factor,
+            raw_vals[5] / angle_factor
         )
 
     def get_version(self) -> str:

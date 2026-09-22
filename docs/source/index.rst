@@ -277,10 +277,23 @@ Tool structure
          │   │       ├── serial_transport.py
          │   │       └── transport_constants.py
          │   ├── config/
+         │   │   ├── examples.tgz
          │   │   ├── idecobot.cfg
          │   │   ├── idecobot.logo
          │   │   ├── mycobot_geometry.json
          │   │   └── scheme.json
+         │   ├── diagnostics/
+         │   │   ├── diagnostics_constants.py
+         │   │   ├── diagnostics_coordinator.py
+         │   │   ├── diagnostics_factory.py
+         │   │   ├── idiagnostics_coordinator.py
+         │   │   ├── ijoint_diagnostics_reader.py
+         │   │   ├── __init__.py
+         │   │   ├── iservo_diagnostics_reader.py
+         │   │   ├── ispatial_diagnostics_reader.py
+         │   │   ├── joint_diagnostics_reader.py
+         │   │   ├── servo_diagnostics_reader.py
+         │   │   └── spatial_diagnostics_reader.py
          │   ├── gui/
          │   │   ├── editor/
          │   │   │   ├── code_editor.py
@@ -288,7 +301,6 @@ Tool structure
          │   │   │   ├── editor_coordinator.py
          │   │   │   ├── editor_panel.py
          │   │   │   ├── editor_panel_factory.py
-         │   │   │   ├── example_catalog.py
          │   │   │   ├── __init__.py
          │   │   │   └── syntax_highlighter.py
          │   │   ├── engine.py
@@ -319,6 +331,12 @@ Tool structure
          │   │   │   ├── log_panel_factory.py
          │   │   │   └── serial_console.py
          │   │   ├── menu/
+         │   │   │   ├── diagnostics_menu_handler.py
+         │   │   │   ├── file_menu_handler.py
+         │   │   │   ├── help_menu_handler.py
+         │   │   │   ├── idiagnostics_menu_handler.py
+         │   │   │   ├── ifile_menu_handler.py
+         │   │   │   ├── ihelp_menu_handler.py
          │   │   │   ├── imenu_bar.py
          │   │   │   ├── __init__.py
          │   │   │   ├── menu_bar.py
@@ -362,8 +380,11 @@ Tool structure
          │   └── storage/
          │       ├── __init__.py
          │       ├── iscript_storage_service.py
+         │       ├── iworkspace_service.py
          │       ├── script_storage_service.py
-         │       └── storage_constants.py
+         │       ├── storage_constants.py
+         │       ├── workspace_constants.py
+         │       └── workspace_service.py
          ├── __init__.py
          ├── py.typed
          └── setup/
@@ -380,7 +401,7 @@ Tool structure
              ├── registry.py
              └── validator.py
 
-     40 directories, 224 files
+     41 directories, 244 files
 
 ✨ Features
 -----------

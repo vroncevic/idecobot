@@ -27,7 +27,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -42,11 +42,19 @@ class MenuBarConstants:
 
             :attributes:
                 | label_file_menu - Title string for the File cascade menu.
+                | label_diagnostics_menu - Title string for the Diagnostics cascade menu.
                 | label_help_menu - Title string for the Help cascade menu.
                 | label_new_script - Action label for creating a new script.
                 | label_open_script - Action label for opening an existing script.
                 | label_save_script - Action label for saving active script.
                 | label_exit - Action label for exiting application.
+                | label_diag_link - Action label for probing hardware link.
+                | label_diag_angles - Action label for querying joint angles.
+                | label_diag_coords - Action label for querying Cartesian coordinates.
+                | label_diag_temperatures - Action label for querying servo temperatures.
+                | label_diag_voltages - Action label for querying servo operating voltages.
+                | label_diag_power_on - Action label for re-enabling servo motor power.
+                | label_diag_release - Action label for releasing servo motor torque.
                 | label_dsl_reference - Action label for DSL syntax reference dialog.
                 | label_about - Action label for application about dialog.
                 | accel_new - Keyboard shortcut accelerator string for new script.
@@ -64,11 +72,19 @@ class MenuBarConstants:
     '''
 
     label_file_menu: str = 'File'
+    label_diagnostics_menu: str = 'Diagnostics'
     label_help_menu: str = 'Help'
     label_new_script: str = 'New Script'
     label_open_script: str = 'Open .cobot Script...'
     label_save_script: str = 'Save .cobot Script...'
     label_exit: str = 'Exit'
+    label_diag_link: str = 'Probe Hardware Link'
+    label_diag_angles: str = 'Read Joint Angles'
+    label_diag_coords: str = 'Read Coordinates'
+    label_diag_temperatures: str = 'Read Servo Temperatures'
+    label_diag_voltages: str = 'Read Servo Voltages'
+    label_diag_power_on: str = 'Re-Enable All Servos (Power On)'
+    label_diag_release: str = 'Release All Servos (Lead-through)'
     label_dsl_reference: str = 'DSL Reference'
     label_about: str = 'About idecobot'
     accel_new: str = 'Ctrl+N'

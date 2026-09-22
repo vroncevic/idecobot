@@ -25,10 +25,13 @@ from tkinter import BOTH, BOTTOM, Frame, TclError, Tk, TOP, VERTICAL, X
 from tkinter.ttk import PanedWindow
 
 from idecobot.core.model.communication.protocol_constants import ProtocolConstants
+from idecobot.core.service.communication.itransport import ITransport
 from idecobot.core.service.iservice import IService
 from idecobot.infrastructure.communication.iserial_port_scanner import ISerialPortScanner
 from idecobot.infrastructure.communication.protocol.mycobot_protocol_codec import MyCobotProtocolCodec
 from idecobot.infrastructure.communication.protocol.protocol_codec_factory import ProtocolCodecFactory
+from idecobot.infrastructure.diagnostics.diagnostics_coordinator import DiagnosticsCoordinator
+from idecobot.infrastructure.diagnostics.diagnostics_factory import DiagnosticsFactory
 from idecobot.infrastructure.gui.editor.editor_constants import EditorConstants
 from idecobot.infrastructure.gui.editor.editor_panel import EditorPanel
 from idecobot.infrastructure.gui.editor.editor_panel_factory import EditorPanelFactory
@@ -58,6 +61,8 @@ from idecobot.infrastructure.gui.stream.connection_panel_factory import Connecti
 from idecobot.infrastructure.gui.stream.status_bar import StatusBar
 from idecobot.infrastructure.gui.stream.status_bar_constants import StatusBarConstants
 from idecobot.infrastructure.gui.theme.color_palette import ColorPalette
+from idecobot.infrastructure.storage.workspace_constants import WorkspaceConstants
+from idecobot.infrastructure.storage.workspace_service import WorkspaceService
 from idecobot.infrastructure.gui.theme.font_config import FontConfig
 from idecobot.infrastructure.gui.theme.theme import ThemeManager
 from idecobot.infrastructure.gui.theme.theme_constants import ThemeConstants
@@ -70,7 +75,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -187,10 +192,16 @@ class GUIBundleFactory:
         )
         paned.add(top_frame, weight=constants.weight_top)
 
+        workspace_constants: WorkspaceConstants = WorkspaceConstants()
+        workspace_service: WorkspaceService = WorkspaceService(constants=workspace_constants)
+        workspace_dir: str = workspace_service.ensure_workspace()
+
         mid_frame: Frame = Frame(paned)
         editor_panel: EditorPanel = EditorPanelFactory.create_editor_panel(
             parent=mid_frame,
             dsl_service=service.get_dsl_service(),
+            workspace_service=workspace_service,
+            storage=storage,
             on_bytecode=handler.on_bytecode,
             on_log=handler.append_log,
             palette=palette,
@@ -236,13 +247,26 @@ class GUIBundleFactory:
             constants=toolbar_constants
         )
 
+        transport: ITransport = service.get_controller().get_transport()
+        diagnostics_coordinator: DiagnosticsCoordinator = (
+            DiagnosticsFactory.create_coordinator(
+                transport=transport,
+                codec=codec,
+                controller=service.get_controller(),
+                proto=protocol_constants
+            )
+        )
+
         menu_bar: MenuBar = MenuBarFactory.create_menu_bar(
             root=root,
             storage=storage,
             on_load=lambda code: editor_panel.set_text(code),
             on_get=lambda: editor_panel.get_text(),
             on_new=lambda: editor_panel.clear(),
-            constants=menu_bar_constants
+            diagnostics=diagnostics_coordinator,
+            on_log=handler.append_log,
+            constants=menu_bar_constants,
+            workspace_dir=workspace_dir
         )
 
         dependencies: GUIBundleDependencies = {
