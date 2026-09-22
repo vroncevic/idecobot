@@ -23,13 +23,13 @@ from __future__ import annotations
 
 from serial import Serial, SerialException
 
-from idecobot.core.model.communication.serial_defaults import SerialDefaults
+from idecobot.infrastructure.communication.transport.transport_constants import TransportConstants
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -42,39 +42,52 @@ class SerialTransport:
         It defines:
 
             :attributes:
-                | _defaults - Injected SerialDefaults configuration settings.
+                | _constants - Injected TransportConstants configuration settings.
                 | _port - Serial port device path string.
                 | _baudrate - Communication speed in bits per second.
                 | _timeout - Read timeout duration in seconds.
                 | _serial - Internal active PySerial connection handle.
             :methods:
                 | __init__ - Initializes serial transport configuration.
+                | configure - Configures target serial port and baud rate.
                 | open - Connects to specified serial port.
                 | close - Closes active connection.
                 | write - Transmits bytes to device.
                 | read - Reads requested byte count from device.
                 | is_open - Checks if port is connected.
                 | flush - Flushes communication buffers.
+                | get_version - Returns serial transport component version string.
     '''
 
-    _defaults: SerialDefaults
+    _constants: TransportConstants
     _port: str
     _baudrate: int
     _timeout: float
     _serial: Serial | None
 
-    def __init__(self, defaults: SerialDefaults) -> None:
+    def __init__(self, constants: TransportConstants) -> None:
         '''
             Initializes serial transport configuration.
 
-            :param defaults: Injected SerialDefaults configuration instance.
+            :param constants: Injected TransportConstants configuration instance.
             :exceptions: None.
         '''
-        self._defaults = defaults
-        self._port = defaults.default_port
-        self._baudrate = defaults.default_baudrate
-        self._timeout = defaults.default_timeout
+        self._constants = constants
+        self._port = constants.default_port
+        self._baudrate = constants.default_baudrate
+        self._timeout = constants.default_timeout
         self._serial = None
+
+    def configure(self, port: str, baudrate: int) -> None:
+        '''
+            Configures target serial port and baud rate.
+
+            :param port: Device path for serial communication.
+            :param baudrate: Communication baud rate in bps.
+            :exceptions: None.
+        '''
+        self._port = port
+        self._baudrate = baudrate
 
     def open(self) -> bool:
         '''
@@ -118,12 +131,12 @@ class SerialTransport:
             :exceptions: None.
         '''
         if self._serial is None or not self._serial.is_open:
-            return self._defaults.zero_bytes_written
+            return self._constants.zero_bytes_written
         try:
             return self._serial.write(data)
 
         except (SerialException, OSError):
-            return self._defaults.zero_bytes_written
+            return self._constants.zero_bytes_written
 
     def read(self, size: int = 1) -> bytes:
         '''
@@ -134,12 +147,12 @@ class SerialTransport:
             :exceptions: None.
         '''
         if self._serial is None or not self._serial.is_open:
-            return self._defaults.empty_payload
+            return self._constants.empty_payload
         try:
             return self._serial.read(size)
 
         except (SerialException, OSError):
-            return self._defaults.empty_payload
+            return self._constants.empty_payload
 
     def is_open(self) -> bool:
         '''
@@ -162,3 +175,13 @@ class SerialTransport:
 
             except (SerialException, OSError):
                 pass
+
+    def get_version(self) -> str:
+        '''
+            Returns serial transport component version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__
+

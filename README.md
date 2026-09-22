@@ -136,14 +136,11 @@ Tool structure
          │   │   │   ├── __init__.py
          │   │   │   ├── mycobot_frame.py
          │   │   │   ├── protocol_constants.py
-         │   │   │   ├── serial_defaults.py
          │   │   │   ├── stream_config.py
          │   │   │   ├── stream_progress.py
          │   │   │   └── stream_state.py
          │   │   ├── dsl/
          │   │   │   ├── ast/
-         │   │   │   │   ├── imycobot_instruction.py
-         │   │   │   │   ├── imycobot_program.py
          │   │   │   │   ├── __init__.py
          │   │   │   │   ├── mycobot_command_type.py
          │   │   │   │   ├── mycobot_instruction.py
@@ -161,7 +158,12 @@ Tool structure
          │   │   ├── __init__.py
          │   │   └── kinematics/
          │   │       ├── __init__.py
-         │   │       └── mycobot_bounds.py
+         │   │       ├── joint_bounds.py
+         │   │       ├── joint_limit.py
+         │   │       ├── mycobot_bounds.py
+         │   │       ├── spatial_bounds.py
+         │   │       ├── speed_bounds.py
+         │   │       └── trajectory_bounds.py
          │   └── service/
          │       ├── communication/
          │       │   ├── imycobot_controller.py
@@ -170,9 +172,22 @@ Tool structure
          │       │   └── itransport.py
          │       ├── dsl/
          │       │   ├── compiler/
+         │       │   │   ├── commands/
+         │       │   │   │   ├── home_command_compiler.py
+         │       │   │   │   ├── icommand_compiler.py
+         │       │   │   │   ├── __init__.py
+         │       │   │   │   ├── move_coords_command_compiler.py
+         │       │   │   │   ├── move_joints_command_compiler.py
+         │       │   │   │   ├── power_command_compiler.py
+         │       │   │   │   ├── relax_command_compiler.py
+         │       │   │   │   ├── speed_command_compiler.py
+         │       │   │   │   ├── tool_command_compiler.py
+         │       │   │   │   └── wait_command_compiler.py
+         │       │   │   ├── compiler_context.py
          │       │   │   ├── imycobot_compiler.py
          │       │   │   ├── __init__.py
          │       │   │   └── mycobot_compiler.py
+         │       │   ├── dsl_service_factory.py
          │       │   ├── imycobot_dsl_service.py
          │       │   ├── __init__.py
          │       │   ├── lexer/
@@ -208,7 +223,11 @@ Tool structure
          │       │       └── mycobot_parser.py
          │       ├── engine.py
          │       ├── __init__.py
-         │       └── iservice.py
+         │       ├── iservice.py
+         │       └── kinematics/
+         │           ├── ikinematic_validator.py
+         │           ├── __init__.py
+         │           └── kinematic_validator.py
          ├── engine.py
          ├── infrastructure/
          │   ├── cli/
@@ -237,22 +256,42 @@ Tool structure
          │   │   ├── __init__.py
          │   │   ├── iserial_port_scanner.py
          │   │   ├── protocol/
+         │   │   │   ├── imotion_codec.py
          │   │   │   ├── imycobot_protocol_codec.py
          │   │   │   ├── __init__.py
-         │   │   │   └── mycobot_protocol_codec.py
+         │   │   │   ├── iprotocol_codec_factory.py
+         │   │   │   ├── iprotocol_framer.py
+         │   │   │   ├── isystem_codec.py
+         │   │   │   ├── itool_codec.py
+         │   │   │   ├── motion_codec.py
+         │   │   │   ├── mycobot_protocol_codec.py
+         │   │   │   ├── protocol_codec_factory.py
+         │   │   │   ├── protocol_framer.py
+         │   │   │   ├── system_codec.py
+         │   │   │   └── tool_codec.py
          │   │   ├── serial_port_scanner.py
          │   │   ├── streamer/
+         │   │   │   ├── connection_manager.py
+         │   │   │   ├── controller_factory.py
+         │   │   │   ├── iconnection_manager.py
+         │   │   │   ├── icontroller_factory.py
          │   │   │   ├── __init__.py
+         │   │   │   ├── irobot_actuator.py
+         │   │   │   ├── irobot_telemetry.py
+         │   │   │   ├── istreamer_factory.py
          │   │   │   ├── mycobot_controller.py
-         │   │   │   └── mycobot_streamer.py
+         │   │   │   ├── mycobot_streamer.py
+         │   │   │   ├── robot_actuator.py
+         │   │   │   ├── robot_telemetry.py
+         │   │   │   └── streamer_factory.py
          │   │   └── transport/
          │   │       ├── __init__.py
          │   │       ├── mock_serial_transport.py
-         │   │       └── serial_transport.py
+         │   │       ├── serial_transport.py
+         │   │       └── transport_constants.py
          │   ├── config/
          │   │   ├── idecobot.cfg
          │   │   ├── idecobot.logo
-         │   │   ├── __init__.py
          │   │   ├── mycobot_geometry.json
          │   │   └── scheme.json
          │   ├── gui/
@@ -306,6 +345,7 @@ Tool structure
          │   │   │   ├── gui_bundle_factory_constants.py
          │   │   │   ├── gui_event_handler.py
          │   │   │   ├── igui_event_handler.py
+         │   │   │   ├── igui_event_target.py
          │   │   │   ├── __init__.py
          │   │   │   ├── keys.py
          │   │   │   ├── opt_validator.py
@@ -340,10 +380,12 @@ Tool structure
          ├── __init__.py
          ├── py.typed
          └── setup/
+             ├── bounds_loader.py
              ├── bundle.py
              ├── dep_validator.py
              ├── dependencies.py
              ├── factory.py
+             ├── gui_factory.py
              ├── __init__.py
              ├── keys.py
              ├── opt_validator.py
@@ -351,7 +393,7 @@ Tool structure
              ├── registry.py
              └── validator.py
 
-     38 directories, 184 files
+     40 directories, 224 files
 ```
 </details>
 
@@ -557,67 +599,84 @@ All communication between **idecobot** and the physical **myCobot 280** microcon
 | `idecobot/core/__init__.py` | 9 | 0 | 100%|
 | `idecobot/core/model/__init__.py` | 9 | 0 | 100%|
 | `idecobot/core/model/communication/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/model/communication/mycobot_frame.py` | 22 | 1 | 95%|
+| `idecobot/core/model/communication/mycobot_frame.py` | 15 | 0 | 100%|
 | `idecobot/core/model/communication/protocol_constants.py` | 39 | 0 | 100%|
-| `idecobot/core/model/communication/serial_defaults.py` | 19 | 0 | 100%|
-| `idecobot/core/model/communication/stream_config.py` | 17 | 0 | 100%|
+| `idecobot/core/model/communication/stream_config.py` | 13 | 0 | 100%|
 | `idecobot/core/model/communication/stream_progress.py` | 18 | 0 | 100%|
 | `idecobot/core/model/communication/stream_state.py` | 17 | 0 | 100%|
 | `idecobot/core/model/dsl/__init__.py` | 9 | 0 | 100%|
 | `idecobot/core/model/dsl/ast/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/model/dsl/ast/imycobot_instruction.py` | 22 | 22 | 0%|
-| `idecobot/core/model/dsl/ast/imycobot_program.py` | 20 | 20 | 0%|
 | `idecobot/core/model/dsl/ast/mycobot_command_type.py` | 19 | 0 | 100%|
 | `idecobot/core/model/dsl/ast/mycobot_instruction.py` | 18 | 0 | 100%|
-| `idecobot/core/model/dsl/ast/mycobot_program.py` | 21 | 2 | 90%|
+| `idecobot/core/model/dsl/ast/mycobot_program.py` | 14 | 0 | 100%|
 | `idecobot/core/model/dsl/diagnostic/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/model/dsl/diagnostic/mycobot_diagnostic.py` | 23 | 2 | 91%|
+| `idecobot/core/model/dsl/diagnostic/mycobot_diagnostic.py` | 17 | 0 | 100%|
 | `idecobot/core/model/dsl/diagnostic/mycobot_diagnostic_severity.py` | 14 | 0 | 100%|
 | `idecobot/core/model/dsl/token/__init__.py` | 9 | 0 | 100%|
 | `idecobot/core/model/dsl/token/dsl_grammar_constants.py` | 32 | 0 | 100%|
 | `idecobot/core/model/dsl/token/mycobot_token.py` | 17 | 0 | 100%|
 | `idecobot/core/model/dsl/token/mycobot_token_type.py` | 18 | 0 | 100%|
 | `idecobot/core/model/kinematics/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/model/kinematics/mycobot_bounds.py` | 53 | 0 | 100%|
+| `idecobot/core/model/kinematics/joint_bounds.py` | 19 | 0 | 100%|
+| `idecobot/core/model/kinematics/joint_limit.py` | 14 | 0 | 100%|
+| `idecobot/core/model/kinematics/mycobot_bounds.py` | 20 | 0 | 100%|
+| `idecobot/core/model/kinematics/spatial_bounds.py` | 14 | 0 | 100%|
+| `idecobot/core/model/kinematics/speed_bounds.py` | 15 | 0 | 100%|
+| `idecobot/core/model/kinematics/trajectory_bounds.py` | 13 | 0 | 100%|
 | `idecobot/core/service/__init__.py` | 9 | 0 | 100%|
 | `idecobot/core/service/communication/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/service/communication/imycobot_controller.py` | 22 | 0 | 100%|
-| `idecobot/core/service/communication/imycobot_streamer.py` | 23 | 0 | 100%|
-| `idecobot/core/service/communication/itransport.py` | 18 | 0 | 100%|
+| `idecobot/core/service/communication/imycobot_controller.py` | 23 | 0 | 100%|
+| `idecobot/core/service/communication/imycobot_streamer.py` | 24 | 0 | 100%|
+| `idecobot/core/service/communication/itransport.py` | 20 | 0 | 100%|
 | `idecobot/core/service/dsl/__init__.py` | 9 | 0 | 100%|
 | `idecobot/core/service/dsl/compiler/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/service/dsl/compiler/imycobot_compiler.py` | 18 | 0 | 100%|
-| `idecobot/core/service/dsl/compiler/mycobot_compiler.py` | 84 | 14 | 83%|
-| `idecobot/core/service/dsl/imycobot_dsl_service.py` | 22 | 0 | 100%|
+| `idecobot/core/service/dsl/compiler/commands/__init__.py` | 9 | 0 | 100%|
+| `idecobot/core/service/dsl/compiler/commands/home_command_compiler.py` | 28 | 0 | 100%|
+| `idecobot/core/service/dsl/compiler/commands/icommand_compiler.py` | 20 | 0 | 100%|
+| `idecobot/core/service/dsl/compiler/commands/move_coords_command_compiler.py` | 37 | 1 | 97%|
+| `idecobot/core/service/dsl/compiler/commands/move_joints_command_compiler.py` | 35 | 1 | 97%|
+| `idecobot/core/service/dsl/compiler/commands/power_command_compiler.py` | 25 | 1 | 96%|
+| `idecobot/core/service/dsl/compiler/commands/relax_command_compiler.py` | 25 | 1 | 96%|
+| `idecobot/core/service/dsl/compiler/commands/speed_command_compiler.py` | 25 | 1 | 96%|
+| `idecobot/core/service/dsl/compiler/commands/tool_command_compiler.py` | 33 | 1 | 97%|
+| `idecobot/core/service/dsl/compiler/commands/wait_command_compiler.py` | 28 | 1 | 96%|
+| `idecobot/core/service/dsl/compiler/compiler_context.py` | 34 | 0 | 100%|
+| `idecobot/core/service/dsl/compiler/imycobot_compiler.py` | 19 | 0 | 100%|
+| `idecobot/core/service/dsl/compiler/mycobot_compiler.py` | 34 | 0 | 100%|
+| `idecobot/core/service/dsl/dsl_service_factory.py` | 48 | 0 | 100%|
+| `idecobot/core/service/dsl/imycobot_dsl_service.py` | 23 | 0 | 100%|
 | `idecobot/core/service/dsl/lexer/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/service/dsl/lexer/imycobot_lexer.py` | 16 | 0 | 100%|
-| `idecobot/core/service/dsl/lexer/mycobot_lexer.py` | 78 | 24 | 69%|
+| `idecobot/core/service/dsl/lexer/imycobot_lexer.py` | 17 | 0 | 100%|
+| `idecobot/core/service/dsl/lexer/mycobot_lexer.py` | 80 | 25 | 69%|
 | `idecobot/core/service/dsl/linter/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/service/dsl/linter/imycobot_linter.py` | 17 | 0 | 100%|
-| `idecobot/core/service/dsl/linter/mycobot_linter.py` | 26 | 1 | 96%|
+| `idecobot/core/service/dsl/linter/imycobot_linter.py` | 18 | 0 | 100%|
+| `idecobot/core/service/dsl/linter/mycobot_linter.py` | 29 | 2 | 93%|
 | `idecobot/core/service/dsl/linter/rules/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/service/dsl/linter/rules/ground_safety_rule.py` | 34 | 5 | 85%|
-| `idecobot/core/service/dsl/linter/rules/imycobot_lint_rule.py` | 17 | 0 | 100%|
-| `idecobot/core/service/dsl/linter/rules/jerk_limit_rule.py` | 42 | 2 | 95%|
-| `idecobot/core/service/dsl/linter/rules/joint_bounds_rule.py` | 36 | 1 | 97%|
-| `idecobot/core/service/dsl/linter/rules/speed_limit_rule.py` | 36 | 5 | 86%|
-| `idecobot/core/service/dsl/linter/rules/workspace_reach_rule.py` | 37 | 7 | 81%|
-| `idecobot/core/service/dsl/mycobot_dsl_service.py` | 47 | 3 | 94%|
+| `idecobot/core/service/dsl/linter/rules/ground_safety_rule.py` | 36 | 6 | 83%|
+| `idecobot/core/service/dsl/linter/rules/imycobot_lint_rule.py` | 18 | 0 | 100%|
+| `idecobot/core/service/dsl/linter/rules/jerk_limit_rule.py` | 44 | 3 | 93%|
+| `idecobot/core/service/dsl/linter/rules/joint_bounds_rule.py` | 38 | 2 | 95%|
+| `idecobot/core/service/dsl/linter/rules/speed_limit_rule.py` | 38 | 6 | 84%|
+| `idecobot/core/service/dsl/linter/rules/workspace_reach_rule.py` | 39 | 8 | 79%|
+| `idecobot/core/service/dsl/mycobot_dsl_service.py` | 49 | 4 | 92%|
 | `idecobot/core/service/dsl/parser/__init__.py` | 9 | 0 | 100%|
 | `idecobot/core/service/dsl/parser/commands/__init__.py` | 9 | 0 | 100%|
-| `idecobot/core/service/dsl/parser/commands/home_command_parser.py` | 21 | 0 | 100%|
-| `idecobot/core/service/dsl/parser/commands/icommand_parser.py` | 17 | 0 | 100%|
-| `idecobot/core/service/dsl/parser/commands/move_command_parser.py` | 55 | 6 | 89%|
-| `idecobot/core/service/dsl/parser/commands/power_command_parser.py` | 21 | 2 | 90%|
-| `idecobot/core/service/dsl/parser/commands/relax_command_parser.py` | 21 | 0 | 100%|
-| `idecobot/core/service/dsl/parser/commands/speed_command_parser.py` | 25 | 1 | 96%|
-| `idecobot/core/service/dsl/parser/commands/tool_command_parser.py` | 37 | 6 | 84%|
-| `idecobot/core/service/dsl/parser/commands/wait_command_parser.py` | 25 | 1 | 96%|
-| `idecobot/core/service/dsl/parser/imycobot_parser.py` | 18 | 0 | 100%|
-| `idecobot/core/service/dsl/parser/mycobot_parser.py` | 51 | 3 | 94%|
-| `idecobot/core/service/engine.py` | 34 | 1 | 97%|
-| `idecobot/core/service/iservice.py` | 21 | 0 | 100%|
-| `idecobot/engine.py` | 60 | 60 | 0%|
+| `idecobot/core/service/dsl/parser/commands/home_command_parser.py` | 23 | 1 | 96%|
+| `idecobot/core/service/dsl/parser/commands/icommand_parser.py` | 18 | 0 | 100%|
+| `idecobot/core/service/dsl/parser/commands/move_command_parser.py` | 57 | 7 | 88%|
+| `idecobot/core/service/dsl/parser/commands/power_command_parser.py` | 23 | 3 | 87%|
+| `idecobot/core/service/dsl/parser/commands/relax_command_parser.py` | 23 | 1 | 96%|
+| `idecobot/core/service/dsl/parser/commands/speed_command_parser.py` | 27 | 2 | 93%|
+| `idecobot/core/service/dsl/parser/commands/tool_command_parser.py` | 39 | 7 | 82%|
+| `idecobot/core/service/dsl/parser/commands/wait_command_parser.py` | 27 | 2 | 93%|
+| `idecobot/core/service/dsl/parser/imycobot_parser.py` | 19 | 0 | 100%|
+| `idecobot/core/service/dsl/parser/mycobot_parser.py` | 53 | 4 | 92%|
+| `idecobot/core/service/engine.py` | 40 | 3 | 92%|
+| `idecobot/core/service/iservice.py` | 24 | 0 | 100%|
+| `idecobot/core/service/kinematics/__init__.py` | 9 | 0 | 100%|
+| `idecobot/core/service/kinematics/ikinematic_validator.py` | 17 | 0 | 100%|
+| `idecobot/core/service/kinematics/kinematic_validator.py` | 29 | 1 | 97%|
+| `idecobot/engine.py` | 57 | 57 | 0%|
 | `idecobot/infrastructure/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/cli/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/cli/engine.py` | 39 | 7 | 82%|
@@ -639,64 +698,85 @@ All communication between **idecobot** and the physical **myCobot 280** microcon
 | `idecobot/infrastructure/command/studio_command_definition.py` | 29 | 1 | 97%|
 | `idecobot/infrastructure/command/studio_command_executor.py` | 41 | 15 | 63%|
 | `idecobot/infrastructure/communication/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/communication/iserial_port_scanner.py` | 15 | 0 | 100%|
+| `idecobot/infrastructure/communication/iserial_port_scanner.py` | 16 | 0 | 100%|
 | `idecobot/infrastructure/communication/protocol/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/communication/protocol/imycobot_protocol_codec.py` | 22 | 0 | 100%|
-| `idecobot/infrastructure/communication/protocol/mycobot_protocol_codec.py` | 50 | 5 | 90%|
-| `idecobot/infrastructure/communication/serial_port_scanner.py` | 18 | 1 | 94%|
+| `idecobot/infrastructure/communication/protocol/imotion_codec.py` | 19 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/imycobot_protocol_codec.py` | 26 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/iprotocol_codec_factory.py` | 16 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/iprotocol_framer.py` | 17 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/isystem_codec.py` | 17 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/itool_codec.py` | 15 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/motion_codec.py` | 43 | 3 | 93%|
+| `idecobot/infrastructure/communication/protocol/mycobot_protocol_codec.py` | 48 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/protocol_codec_factory.py` | 22 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/protocol_framer.py` | 27 | 1 | 96%|
+| `idecobot/infrastructure/communication/protocol/system_codec.py` | 22 | 0 | 100%|
+| `idecobot/infrastructure/communication/protocol/tool_codec.py` | 21 | 0 | 100%|
+| `idecobot/infrastructure/communication/serial_port_scanner.py` | 20 | 2 | 90%|
 | `idecobot/infrastructure/communication/streamer/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/communication/streamer/mycobot_controller.py` | 66 | 16 | 76%|
-| `idecobot/infrastructure/communication/streamer/mycobot_streamer.py` | 71 | 36 | 49%|
+| `idecobot/infrastructure/communication/streamer/connection_manager.py` | 22 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/controller_factory.py` | 23 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/iconnection_manager.py` | 16 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/icontroller_factory.py` | 18 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/irobot_actuator.py` | 21 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/irobot_telemetry.py` | 16 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/istreamer_factory.py` | 17 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/mycobot_controller.py` | 41 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/mycobot_streamer.py` | 84 | 5 | 94%|
+| `idecobot/infrastructure/communication/streamer/robot_actuator.py` | 37 | 0 | 100%|
+| `idecobot/infrastructure/communication/streamer/robot_telemetry.py` | 36 | 2 | 94%|
+| `idecobot/infrastructure/communication/streamer/streamer_factory.py` | 19 | 0 | 100%|
 | `idecobot/infrastructure/communication/transport/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/communication/transport/mock_serial_transport.py` | 59 | 4 | 93%|
-| `idecobot/infrastructure/communication/transport/serial_transport.py` | 57 | 25 | 56%|
-| `idecobot/infrastructure/config/__init__.py` | 9 | 9 | 0%|
+| `idecobot/infrastructure/communication/transport/mock_serial_transport.py` | 62 | 4 | 94%|
+| `idecobot/infrastructure/communication/transport/serial_transport.py` | 62 | 28 | 55%|
+| `idecobot/infrastructure/communication/transport/transport_constants.py` | 19 | 0 | 100%|
 | `idecobot/infrastructure/gui/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/gui/editor/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/gui/editor/code_editor.py` | 55 | 4 | 93%|
+| `idecobot/infrastructure/gui/editor/code_editor.py` | 57 | 5 | 91%|
 | `idecobot/infrastructure/gui/editor/editor_constants.py` | 54 | 0 | 100%|
-| `idecobot/infrastructure/gui/editor/editor_coordinator.py` | 62 | 2 | 97%|
+| `idecobot/infrastructure/gui/editor/editor_coordinator.py` | 59 | 2 | 97%|
 | `idecobot/infrastructure/gui/editor/editor_panel.py` | 69 | 22 | 68%|
 | `idecobot/infrastructure/gui/editor/editor_panel_factory.py` | 52 | 0 | 100%|
 | `idecobot/infrastructure/gui/editor/example_catalog.py` | 18 | 0 | 100%|
 | `idecobot/infrastructure/gui/editor/syntax_highlighter.py` | 48 | 0 | 100%|
-| `idecobot/infrastructure/gui/engine.py` | 89 | 36 | 60%|
+| `idecobot/infrastructure/gui/engine.py` | 88 | 36 | 59%|
 | `idecobot/infrastructure/gui/engine_constants.py` | 24 | 0 | 100%|
 | `idecobot/infrastructure/gui/igui.py` | 17 | 0 | 100%|
 | `idecobot/infrastructure/gui/jog/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/gui/jog/cartesian_constants.py` | 33 | 0 | 100%|
-| `idecobot/infrastructure/gui/jog/cartesian_panel.py` | 54 | 6 | 89%|
+| `idecobot/infrastructure/gui/jog/cartesian_panel.py` | 56 | 7 | 88%|
 | `idecobot/infrastructure/gui/jog/jog_constants.py` | 58 | 0 | 100%|
-| `idecobot/infrastructure/gui/jog/jog_coordinator.py` | 91 | 7 | 92%|
+| `idecobot/infrastructure/gui/jog/jog_coordinator.py` | 90 | 8 | 91%|
 | `idecobot/infrastructure/gui/jog/jog_panel.py` | 50 | 9 | 82%|
 | `idecobot/infrastructure/gui/jog/jog_panel_factory.py` | 59 | 18 | 69%|
 | `idecobot/infrastructure/gui/jog/joint_constants.py` | 33 | 0 | 100%|
-| `idecobot/infrastructure/gui/jog/joint_panel.py` | 53 | 6 | 89%|
+| `idecobot/infrastructure/gui/jog/joint_panel.py` | 56 | 7 | 88%|
 | `idecobot/infrastructure/gui/jog/step_constants.py` | 30 | 0 | 100%|
 | `idecobot/infrastructure/gui/jog/step_panel.py` | 52 | 11 | 79%|
 | `idecobot/infrastructure/gui/jog/tool_constants.py` | 38 | 0 | 100%|
 | `idecobot/infrastructure/gui/jog/tool_panel.py` | 53 | 3 | 94%|
 | `idecobot/infrastructure/gui/log/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/gui/log/bytecode_constants.py` | 23 | 0 | 100%|
-| `idecobot/infrastructure/gui/log/bytecode_preview.py` | 55 | 11 | 80%|
+| `idecobot/infrastructure/gui/log/bytecode_preview.py` | 60 | 12 | 80%|
 | `idecobot/infrastructure/gui/log/console_constants.py` | 33 | 0 | 100%|
 | `idecobot/infrastructure/gui/log/log_constants.py` | 17 | 0 | 100%|
 | `idecobot/infrastructure/gui/log/log_panel.py` | 50 | 7 | 86%|
-| `idecobot/infrastructure/gui/log/log_panel_factory.py` | 32 | 0 | 100%|
-| `idecobot/infrastructure/gui/log/serial_console.py` | 62 | 9 | 85%|
+| `idecobot/infrastructure/gui/log/log_panel_factory.py` | 37 | 1 | 97%|
+| `idecobot/infrastructure/gui/log/serial_console.py` | 64 | 9 | 86%|
 | `idecobot/infrastructure/gui/menu/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/gui/menu/imenu_bar.py` | 17 | 17 | 0%|
-| `idecobot/infrastructure/gui/menu/menu_bar.py` | 56 | 13 | 77%|
+| `idecobot/infrastructure/gui/menu/imenu_bar.py` | 18 | 0 | 100%|
+| `idecobot/infrastructure/gui/menu/menu_bar.py` | 58 | 13 | 78%|
 | `idecobot/infrastructure/gui/menu/menu_bar_constants.py` | 32 | 0 | 100%|
 | `idecobot/infrastructure/gui/menu/menu_bar_factory.py` | 33 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/bundle.py` | 37 | 1 | 97%|
 | `idecobot/infrastructure/gui/setup/dep_validator.py` | 36 | 5 | 86%|
 | `idecobot/infrastructure/gui/setup/dependencies.py` | 33 | 0 | 100%|
-| `idecobot/infrastructure/gui/setup/factory.py` | 103 | 7 | 93%|
+| `idecobot/infrastructure/gui/setup/factory.py` | 112 | 7 | 94%|
 | `idecobot/infrastructure/gui/setup/gui_bundle_factory_constants.py` | 23 | 0 | 100%|
-| `idecobot/infrastructure/gui/setup/gui_event_handler.py` | 39 | 4 | 90%|
-| `idecobot/infrastructure/gui/setup/igui_event_handler.py` | 21 | 0 | 100%|
+| `idecobot/infrastructure/gui/setup/gui_event_handler.py` | 42 | 5 | 88%|
+| `idecobot/infrastructure/gui/setup/igui_event_handler.py` | 22 | 0 | 100%|
+| `idecobot/infrastructure/gui/setup/igui_event_target.py` | 22 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/keys.py` | 43 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/opt_validator.py` | 36 | 5 | 86%|
 | `idecobot/infrastructure/gui/setup/options.py` | 17 | 0 | 100%|
@@ -711,28 +791,30 @@ All communication between **idecobot** and the physical **myCobot 280** microcon
 | `idecobot/infrastructure/gui/theme/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/gui/theme/color_palette.py` | 34 | 0 | 100%|
 | `idecobot/infrastructure/gui/theme/font_config.py` | 21 | 0 | 100%|
-| `idecobot/infrastructure/gui/theme/theme.py` | 47 | 0 | 100%|
+| `idecobot/infrastructure/gui/theme/theme.py` | 50 | 1 | 98%|
 | `idecobot/infrastructure/gui/theme/theme_constants.py` | 38 | 0 | 100%|
 | `idecobot/infrastructure/gui/toolbar/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/gui/toolbar/itoolbar.py` | 15 | 15 | 0%|
-| `idecobot/infrastructure/gui/toolbar/toolbar.py` | 58 | 0 | 100%|
+| `idecobot/infrastructure/gui/toolbar/itoolbar.py` | 16 | 0 | 100%|
+| `idecobot/infrastructure/gui/toolbar/toolbar.py` | 60 | 0 | 100%|
 | `idecobot/infrastructure/gui/toolbar/toolbar_constants.py` | 28 | 0 | 100%|
 | `idecobot/infrastructure/gui/toolbar/toolbar_factory.py` | 37 | 0 | 100%|
 | `idecobot/infrastructure/storage/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/storage/iscript_storage_service.py` | 15 | 0 | 100%|
-| `idecobot/infrastructure/storage/script_storage_service.py` | 38 | 5 | 87%|
+| `idecobot/infrastructure/storage/iscript_storage_service.py` | 16 | 0 | 100%|
+| `idecobot/infrastructure/storage/script_storage_service.py` | 40 | 6 | 85%|
 | `idecobot/infrastructure/storage/storage_constants.py` | 19 | 0 | 100%|
 | `idecobot/setup/__init__.py` | 9 | 0 | 100%|
+| `idecobot/setup/bounds_loader.py` | 41 | 2 | 95%|
 | `idecobot/setup/bundle.py` | 25 | 0 | 100%|
 | `idecobot/setup/dep_validator.py` | 36 | 5 | 86%|
 | `idecobot/setup/dependencies.py` | 21 | 0 | 100%|
-| `idecobot/setup/factory.py` | 116 | 5 | 96%|
+| `idecobot/setup/factory.py` | 64 | 2 | 97%|
+| `idecobot/setup/gui_factory.py` | 34 | 0 | 100%|
 | `idecobot/setup/keys.py` | 33 | 1 | 97%|
 | `idecobot/setup/opt_validator.py` | 36 | 16 | 56%|
 | `idecobot/setup/options.py` | 16 | 0 | 100%|
 | `idecobot/setup/registry.py` | 34 | 1 | 97%|
 | `idecobot/setup/validator.py` | 53 | 5 | 91%|
-| **Total** | 5467 | 614 | 89% |
+| **Total** | 6365 | 501 | 92% |
 
 </details>
 

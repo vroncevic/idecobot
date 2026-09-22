@@ -123,14 +123,11 @@ Tool structure
          │   │   │   ├── __init__.py
          │   │   │   ├── mycobot_frame.py
          │   │   │   ├── protocol_constants.py
-         │   │   │   ├── serial_defaults.py
          │   │   │   ├── stream_config.py
          │   │   │   ├── stream_progress.py
          │   │   │   └── stream_state.py
          │   │   ├── dsl/
          │   │   │   ├── ast/
-         │   │   │   │   ├── imycobot_instruction.py
-         │   │   │   │   ├── imycobot_program.py
          │   │   │   │   ├── __init__.py
          │   │   │   │   ├── mycobot_command_type.py
          │   │   │   │   ├── mycobot_instruction.py
@@ -148,7 +145,12 @@ Tool structure
          │   │   ├── __init__.py
          │   │   └── kinematics/
          │   │       ├── __init__.py
-         │   │       └── mycobot_bounds.py
+         │   │       ├── joint_bounds.py
+         │   │       ├── joint_limit.py
+         │   │       ├── mycobot_bounds.py
+         │   │       ├── spatial_bounds.py
+         │   │       ├── speed_bounds.py
+         │   │       └── trajectory_bounds.py
          │   └── service/
          │       ├── communication/
          │       │   ├── imycobot_controller.py
@@ -157,9 +159,22 @@ Tool structure
          │       │   └── itransport.py
          │       ├── dsl/
          │       │   ├── compiler/
+         │       │   │   ├── commands/
+         │       │   │   │   ├── home_command_compiler.py
+         │       │   │   │   ├── icommand_compiler.py
+         │       │   │   │   ├── __init__.py
+         │       │   │   │   ├── move_coords_command_compiler.py
+         │       │   │   │   ├── move_joints_command_compiler.py
+         │       │   │   │   ├── power_command_compiler.py
+         │       │   │   │   ├── relax_command_compiler.py
+         │       │   │   │   ├── speed_command_compiler.py
+         │       │   │   │   ├── tool_command_compiler.py
+         │       │   │   │   └── wait_command_compiler.py
+         │       │   │   ├── compiler_context.py
          │       │   │   ├── imycobot_compiler.py
          │       │   │   ├── __init__.py
          │       │   │   └── mycobot_compiler.py
+         │       │   ├── dsl_service_factory.py
          │       │   ├── imycobot_dsl_service.py
          │       │   ├── __init__.py
          │       │   ├── lexer/
@@ -195,7 +210,11 @@ Tool structure
          │       │       └── mycobot_parser.py
          │       ├── engine.py
          │       ├── __init__.py
-         │       └── iservice.py
+         │       ├── iservice.py
+         │       └── kinematics/
+         │           ├── ikinematic_validator.py
+         │           ├── __init__.py
+         │           └── kinematic_validator.py
          ├── engine.py
          ├── infrastructure/
          │   ├── cli/
@@ -224,22 +243,42 @@ Tool structure
          │   │   ├── __init__.py
          │   │   ├── iserial_port_scanner.py
          │   │   ├── protocol/
+         │   │   │   ├── imotion_codec.py
          │   │   │   ├── imycobot_protocol_codec.py
          │   │   │   ├── __init__.py
-         │   │   │   └── mycobot_protocol_codec.py
+         │   │   │   ├── iprotocol_codec_factory.py
+         │   │   │   ├── iprotocol_framer.py
+         │   │   │   ├── isystem_codec.py
+         │   │   │   ├── itool_codec.py
+         │   │   │   ├── motion_codec.py
+         │   │   │   ├── mycobot_protocol_codec.py
+         │   │   │   ├── protocol_codec_factory.py
+         │   │   │   ├── protocol_framer.py
+         │   │   │   ├── system_codec.py
+         │   │   │   └── tool_codec.py
          │   │   ├── serial_port_scanner.py
          │   │   ├── streamer/
+         │   │   │   ├── connection_manager.py
+         │   │   │   ├── controller_factory.py
+         │   │   │   ├── iconnection_manager.py
+         │   │   │   ├── icontroller_factory.py
          │   │   │   ├── __init__.py
+         │   │   │   ├── irobot_actuator.py
+         │   │   │   ├── irobot_telemetry.py
+         │   │   │   ├── istreamer_factory.py
          │   │   │   ├── mycobot_controller.py
-         │   │   │   └── mycobot_streamer.py
+         │   │   │   ├── mycobot_streamer.py
+         │   │   │   ├── robot_actuator.py
+         │   │   │   ├── robot_telemetry.py
+         │   │   │   └── streamer_factory.py
          │   │   └── transport/
          │   │       ├── __init__.py
          │   │       ├── mock_serial_transport.py
-         │   │       └── serial_transport.py
+         │   │       ├── serial_transport.py
+         │   │       └── transport_constants.py
          │   ├── config/
          │   │   ├── idecobot.cfg
          │   │   ├── idecobot.logo
-         │   │   ├── __init__.py
          │   │   ├── mycobot_geometry.json
          │   │   └── scheme.json
          │   ├── gui/
@@ -293,6 +332,7 @@ Tool structure
          │   │   │   ├── gui_bundle_factory_constants.py
          │   │   │   ├── gui_event_handler.py
          │   │   │   ├── igui_event_handler.py
+         │   │   │   ├── igui_event_target.py
          │   │   │   ├── __init__.py
          │   │   │   ├── keys.py
          │   │   │   ├── opt_validator.py
@@ -327,10 +367,12 @@ Tool structure
          ├── __init__.py
          ├── py.typed
          └── setup/
+             ├── bounds_loader.py
              ├── bundle.py
              ├── dep_validator.py
              ├── dependencies.py
              ├── factory.py
+             ├── gui_factory.py
              ├── __init__.py
              ├── keys.py
              ├── opt_validator.py
@@ -338,7 +380,7 @@ Tool structure
              ├── registry.py
              └── validator.py
 
-     38 directories, 184 files
+     40 directories, 224 files
 
 ✨ Features
 -----------

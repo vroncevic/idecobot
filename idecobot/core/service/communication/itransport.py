@@ -27,7 +27,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -41,13 +41,23 @@ class ITransport(Protocol):
         It defines:
 
             :methods:
+                | configure - Configures transport endpoint and baud rate parameters.
                 | open - Opens the transport connection.
                 | close - Closes the transport connection.
                 | write - Transmits byte buffer to transport.
                 | read - Reads requested number of bytes from transport.
                 | is_open - Checks if transport channel is actively open.
                 | flush - Flushes transport write/read buffers.
+                | get_version - Returns transport component version string.
     '''
+
+    def configure(self, port: str, baudrate: int) -> None:
+        '''
+            Configures transport endpoint and baud rate parameters.
+
+            :param port: Device path or host address.
+            :param baudrate: Communication baud rate in bps.
+        '''
 
     def open(self) -> bool:
         '''
@@ -88,3 +98,11 @@ class ITransport(Protocol):
         '''
             Flushes transport write and read buffers.
         '''
+
+    def get_version(self) -> str:
+        '''
+            Returns transport component version string.
+
+            :return: Component version string.
+        '''
+

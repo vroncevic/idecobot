@@ -31,7 +31,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -47,6 +47,7 @@ class IMyCobotLinter(Protocol):
             :methods:
                 | lint - Evaluates AST program across configured semantic rules.
                 | is_valid - Checks whether program contains any error-level diagnostics.
+                | get_version - Returns protocol version string.
     '''
 
     def lint(self, program: MyCobotProgram) -> Sequence[MyCobotDiagnostic]:
@@ -64,3 +65,11 @@ class IMyCobotLinter(Protocol):
             :param program: Parsed MyCobotProgram AST instance.
             :return: True if program has no errors, False otherwise.
         '''
+
+    def get_version(self) -> str:
+        '''
+            Returns protocol version string.
+
+            :return: Version string.
+        '''
+

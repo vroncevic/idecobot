@@ -30,7 +30,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -46,6 +46,7 @@ class IMyCobotLexer(Protocol):
             :methods:
                 | tokenize - Tokenizes source text into sequence of tokens.
                 | tokenize_line - Tokenizes a single line of DSL source code.
+                | get_version - Returns protocol version string.
     '''
 
     def tokenize(self, source: str) -> Sequence[MyCobotToken]:
@@ -64,3 +65,11 @@ class IMyCobotLexer(Protocol):
             :param line_number: 1-indexed line number for token location tracking.
             :return: Sequence of tokenized symbols for the line.
         '''
+
+    def get_version(self) -> str:
+        '''
+            Returns protocol version string.
+
+            :return: Version string.
+        '''
+

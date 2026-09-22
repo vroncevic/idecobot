@@ -41,7 +41,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -84,8 +84,7 @@ class CLIBundleFactory:
 
         studio_definition: ICommandDefinition = StudioCommandDefinition()
         studio_executor: ICommandExecutor[ICommandDefinition, object, object, object] = StudioCommandExecutor(
-            definition=studio_definition,
-            gui=gui
+            definition=studio_definition, gui=gui
         )
         studio_cmd: CommandBundle = CommandBundle(definition=studio_definition, executor=studio_executor)
 

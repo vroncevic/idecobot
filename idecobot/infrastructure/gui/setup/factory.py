@@ -24,8 +24,11 @@ from __future__ import annotations
 from tkinter import BOTH, BOTTOM, Frame, TclError, Tk, TOP, VERTICAL, X
 from tkinter.ttk import PanedWindow
 
+from idecobot.core.model.communication.protocol_constants import ProtocolConstants
 from idecobot.core.service.iservice import IService
 from idecobot.infrastructure.communication.iserial_port_scanner import ISerialPortScanner
+from idecobot.infrastructure.communication.protocol.mycobot_protocol_codec import MyCobotProtocolCodec
+from idecobot.infrastructure.communication.protocol.protocol_codec_factory import ProtocolCodecFactory
 from idecobot.infrastructure.gui.editor.editor_constants import EditorConstants
 from idecobot.infrastructure.gui.editor.editor_panel import EditorPanel
 from idecobot.infrastructure.gui.editor.editor_panel_factory import EditorPanelFactory
@@ -33,6 +36,9 @@ from idecobot.infrastructure.gui.jog.jog_constants import JogConstants
 from idecobot.infrastructure.gui.jog.jog_coordinator import JogCoordinator
 from idecobot.infrastructure.gui.jog.jog_panel import JogPanel
 from idecobot.infrastructure.gui.jog.jog_panel_factory import JogPanelFactory
+from idecobot.infrastructure.gui.log.bytecode_constants import BytecodeConstants
+from idecobot.infrastructure.gui.log.console_constants import ConsoleConstants
+from idecobot.infrastructure.gui.log.log_constants import LogConstants
 from idecobot.infrastructure.gui.log.log_panel import LogPanel
 from idecobot.infrastructure.gui.log.log_panel_factory import LogPanelFactory
 from idecobot.infrastructure.gui.menu.menu_bar import MenuBar
@@ -64,7 +70,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -86,52 +92,50 @@ class GUIBundleFactory:
         cls,
         options: GUIBundleOptions,
         handler: IGUIEventHandler,
-        root: Tk | None = None,
-        constants: GUIBundleFactoryConstants | None = None
+        root: Tk,
+        constants: GUIBundleFactoryConstants
     ) -> GUIBundle:
         '''
             Creates assembled GUIBundle with fully wired components.
 
             :param options: Validated GUI options mapping.
             :param handler: GUI event delegate implementing IGUIEventHandler.
-            :param root: Optional parent Tk window.
-            :param constants: Optional GUIBundleFactoryConstants configuration.
+            :param root: Injected parent Tk window.
+            :param constants: Injected GUIBundleFactoryConstants configuration.
             :return: Assembled and validated GUIBundle instance.
             :exceptions:
                 | ATSValueError: If options or dependencies are invalid.
                 | ATSTypeError: If option attributes violate required types.
         '''
         GUIBundleOptionsValidator.validate(options)
-        bundle_constants: GUIBundleFactoryConstants = (
-            constants if constants is not None else GUIBundleFactoryConstants()
-        )
 
         service: IService = options[GUIBundleKeys.OPTION_SERVICE]
         scanner: ISerialPortScanner = options[GUIBundleKeys.OPTION_SCANNER]
         storage: IScriptStorageService = options[GUIBundleKeys.OPTION_STORAGE]
 
-        root_win: Tk = root if root is not None else Tk()
-        root_win.title(bundle_constants.window_title)
-        sw: int = root_win.winfo_screenwidth()
-        sh: int = root_win.winfo_screenheight()
-        root_win.geometry(f'{sw}x{sh}+0+0')
-        root_win.minsize(bundle_constants.min_width, bundle_constants.min_height)
+        root.title(constants.window_title)
+        sw: int = root.winfo_screenwidth()
+        sh: int = root.winfo_screenheight()
+        root.geometry(f'{sw}x{sh}+0+0')
+        root.minsize(constants.min_width, constants.min_height)
 
         palette: ColorPalette = ColorPalette()
         fonts: FontConfig = FontConfig()
         theme_constants: ThemeConstants = ThemeConstants()
         ThemeManager.apply_theme(
-            root=root_win,
+            root=root,
             palette=palette,
             fonts=fonts,
             constants=theme_constants
         )
 
         try:
-            root_win.attributes(bundle_constants.attr_zoomed, True)
+            root.attributes(constants.attr_zoomed, True)
+
         except TclError:
             try:
-                root_win.state(bundle_constants.state_zoomed)
+                root.state(constants.state_zoomed)
+
             except TclError:
                 pass
 
@@ -140,20 +144,27 @@ class GUIBundleFactory:
         jog_constants: JogConstants = JogConstants()
         jog_coordinator: JogCoordinator = JogCoordinator(
             controller=service.get_controller(),
-            bounds=service.get_bounds(),
+            validator=service.get_validator(),
             constants=jog_constants,
             on_log=handler.append_log
         )
         editor_constants: EditorConstants = EditorConstants()
         status_bar_constants: StatusBarConstants = StatusBarConstants()
         menu_bar_constants: MenuBarConstants = MenuBarConstants()
+        bytecode_constants: BytecodeConstants = BytecodeConstants()
+        protocol_constants: ProtocolConstants = ProtocolConstants()
+        codec: MyCobotProtocolCodec = ProtocolCodecFactory.create(
+            constants=protocol_constants
+        )
+        console_constants: ConsoleConstants = ConsoleConstants()
+        log_constants: LogConstants = LogConstants()
 
-        paned: PanedWindow = PanedWindow(root_win, orient=VERTICAL)
+        paned: PanedWindow = PanedWindow(root, orient=VERTICAL)
         paned.pack(
             fill=BOTH,
             expand=True,
-            padx=bundle_constants.paned_padx,
-            pady=bundle_constants.paned_pady
+            padx=constants.paned_padx,
+            pady=constants.paned_pady
         )
 
         top_frame: Frame = Frame(paned)
@@ -174,7 +185,7 @@ class GUIBundleFactory:
             palette=palette,
             constants=jog_constants
         )
-        paned.add(top_frame, weight=bundle_constants.weight_top)
+        paned.add(top_frame, weight=constants.weight_top)
 
         mid_frame: Frame = Frame(paned)
         editor_panel: EditorPanel = EditorPanelFactory.create_editor_panel(
@@ -186,13 +197,17 @@ class GUIBundleFactory:
             fonts=fonts,
             constants=editor_constants
         )
-        paned.add(mid_frame, weight=bundle_constants.weight_mid)
+        paned.add(mid_frame, weight=constants.weight_mid)
 
         bot_frame: Frame = Frame(paned)
         log_panel: LogPanel = LogPanelFactory.create_log_panel(
             parent=bot_frame,
             palette=palette,
-            fonts=fonts
+            fonts=fonts,
+            constants=log_constants,
+            console_constants=console_constants,
+            bytecode_constants=bytecode_constants,
+            framer=codec.framer
         )
         status_bar: StatusBar = StatusBar(
             parent=bot_frame,
@@ -201,16 +216,16 @@ class GUIBundleFactory:
             constants=status_bar_constants
         )
         status_bar.frame.pack(fill=X, side=BOTTOM)
-        paned.add(bot_frame, weight=bundle_constants.weight_bot)
+        paned.add(bot_frame, weight=constants.weight_bot)
 
         def on_home_cmd() -> None:
-            service.get_controller().home(bundle_constants.default_home_speed)
+            service.get_controller().home(constants.default_home_speed)
 
         def on_relax_cmd() -> None:
             service.get_controller().power(False)
 
         toolbar: Toolbar = ToolbarFactory.create_toolbar(
-            parent=root_win,
+            parent=root,
             on_run=handler.run_stream,
             on_pause=handler.pause_stream,
             on_stop=handler.stop_stream,
@@ -222,7 +237,7 @@ class GUIBundleFactory:
         )
 
         menu_bar: MenuBar = MenuBarFactory.create_menu_bar(
-            root=root_win,
+            root=root,
             storage=storage,
             on_load=lambda code: editor_panel.set_text(code),
             on_get=lambda: editor_panel.get_text(),
@@ -234,7 +249,7 @@ class GUIBundleFactory:
             GUIBundleKeys.DEPENDENCY_SERVICE: service,
             GUIBundleKeys.DEPENDENCY_SCANNER: scanner,
             GUIBundleKeys.DEPENDENCY_STORAGE: storage,
-            GUIBundleKeys.DEPENDENCY_ROOT: root_win,
+            GUIBundleKeys.DEPENDENCY_ROOT: root,
             GUIBundleKeys.DEPENDENCY_MENU_BAR: menu_bar,
             GUIBundleKeys.DEPENDENCY_TOOLBAR: toolbar,
             GUIBundleKeys.DEPENDENCY_PORT_PANEL: port_panel,

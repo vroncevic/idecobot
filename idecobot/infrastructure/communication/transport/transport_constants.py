@@ -2,7 +2,7 @@
 
 '''
 Module
-    serial_defaults.py
+    transport_constants.py
 Copyright
     Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
     idecobot is free software: you can redistribute it and/or modify it
@@ -16,7 +16,7 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Defines SerialDefaults immutable configuration dataclass for serial transport defaults.
+    Defines TransportConstants configuration dataclass for serial transport infrastructure.
 '''
 
 from __future__ import annotations
@@ -27,16 +27,16 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
 
 
 @dataclass(frozen=True, slots=True)
-class SerialDefaults:
+class TransportConstants:
     '''
-        Default configuration parameters for physical and simulated serial transports.
+        Default configuration constants for serial transport infrastructure.
 
         It defines:
 

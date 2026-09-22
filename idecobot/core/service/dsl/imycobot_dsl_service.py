@@ -33,7 +33,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -52,6 +52,7 @@ class IMyCobotDslService(Protocol):
                 | lint - Evaluates AST program against semantic rules.
                 | compile - Translates AST program into binary protocol frames.
                 | validate - End-to-end parse and lint returning AST and diagnostics.
+                | get_version - Returns protocol version string.
     '''
 
     def tokenize(self, source: str) -> Sequence[MyCobotToken]:
@@ -86,13 +87,18 @@ class IMyCobotDslService(Protocol):
             :return: Sequence of compiled MyCobotFrame objects.
         '''
 
-    def validate(
-        self,
-        source: str
-    ) -> tuple[MyCobotProgram | None, Sequence[MyCobotDiagnostic]]:
+    def validate(self, source: str) -> tuple[MyCobotProgram | None, Sequence[MyCobotDiagnostic]]:
         '''
             End-to-end parse and lint returning AST and diagnostics.
 
             :param source: Raw DSL source code string.
             :return: Tuple of optional program AST and sequence of diagnostics.
         '''
+
+    def get_version(self) -> str:
+        '''
+            Returns protocol version string.
+
+            :return: Version string.
+        '''
+

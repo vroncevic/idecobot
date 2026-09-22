@@ -32,7 +32,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -52,9 +52,11 @@ class JointPanel:
                 | _labels - Mapping of joint index to angle readout Label widgets.
             :methods:
                 | __init__ - Initializes joint jog controls.
+                | create_joint_row - Builds a single joint jog row with controls and readout.
                 | get_frame - Returns container Frame.
                 | update_angles - Updates displayed joint angle readouts.
                 | constants - Property returning injected JointConstants.
+                | get_version - Returns Joint panel version string.
     '''
 
     _palette: ColorPalette
@@ -99,9 +101,9 @@ class JointPanel:
         lbl_title.pack(anchor=W, pady=self._constants.pad_title_y)
 
         for j_id in range(self._constants.min_joint_id, self._constants.max_joint_id + 1):
-            self._create_joint_row(j_id)
+            self.create_joint_row(j_id)
 
-    def _create_joint_row(self, j_id: int) -> None:
+    def create_joint_row(self, j_id: int) -> None:
         '''
             Builds a single joint jog row with label, minus button, readout, plus button.
 
@@ -127,6 +129,7 @@ class JointPanel:
         )
         btn_minus.pack(side=LEFT, padx=self._constants.btn_padx)
 
+        unit_str: str = self._constants.unit_deg
         val_lbl: Label = Label(
             row,
             text=self._constants.default_readout,
@@ -175,3 +178,12 @@ class JointPanel:
             :return: JointConstants instance.
         '''
         return self._constants
+
+    def get_version(self) -> str:
+        '''
+            Returns Joint panel version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

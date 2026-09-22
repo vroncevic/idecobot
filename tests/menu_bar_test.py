@@ -24,6 +24,7 @@ from __future__ import annotations
 from tkinter import Menu, Tk
 from unittest import TestCase, main
 
+from idecobot.infrastructure.gui.menu.imenu_bar import IMenuBar
 from idecobot.infrastructure.gui.menu.menu_bar import MenuBar
 from idecobot.infrastructure.gui.menu.menu_bar_constants import MenuBarConstants
 from idecobot.infrastructure.gui.menu.menu_bar_factory import MenuBarFactory
@@ -32,7 +33,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -91,7 +92,7 @@ class TestMenuBar(TestCase):
         '''
         self.root.destroy()
 
-    def _create_menu_bar(self) -> MenuBar:
+    def create_menu_bar(self) -> MenuBar:
         return MenuBarFactory.create_menu_bar(
             root=self.root,
             storage=self.storage,
@@ -105,17 +106,19 @@ class TestMenuBar(TestCase):
         '''
             Verifies MenuBarFactory creates a configured MenuBar.
         '''
-        bar: MenuBar = self._create_menu_bar()
+        bar: MenuBar = self.create_menu_bar()
         self.assertIsNotNone(bar)
         self.assertIsInstance(bar, MenuBar)
+        self.assertIsInstance(bar, IMenuBar)
         self.assertEqual(bar.constants, self.constants)
         self.assertIsInstance(bar.menu_bar, Menu)
+        self.assertEqual(bar.get_version(), '1.0.1')
 
     def test_new_script(self) -> None:
         '''
             Verifies new_script action triggers on_new callback.
         '''
-        bar: MenuBar = self._create_menu_bar()
+        bar: MenuBar = self.create_menu_bar()
         bar.new_script()
         self.assertTrue(self.new_called)
 

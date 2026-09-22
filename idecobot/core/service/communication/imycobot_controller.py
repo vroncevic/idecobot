@@ -28,7 +28,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -51,6 +51,7 @@ class IMyCobotController(Protocol):
                 | power - Toggles servo power on or release.
                 | home - Moves manipulator to zero home position.
                 | read_angles - Queries current joint angles from hardware.
+                | get_version - Returns controller component version string.
     '''
 
     def connect(self, port: str, baudrate: int = 115200) -> bool:
@@ -83,12 +84,7 @@ class IMyCobotController(Protocol):
             :return: True if successfully transmitted, False otherwise.
         '''
 
-    def send_coords(
-        self,
-        coords: Sequence[float],
-        speed: int,
-        mode: int = 0
-    ) -> bool:
+    def send_coords(self, coords: Sequence[float], speed: int, mode: int = 0) -> bool:
         '''
             Commands Cartesian tool positioning.
 
@@ -129,3 +125,11 @@ class IMyCobotController(Protocol):
 
             :return: Sequence of 6 angles in degrees, or None if unavailable.
         '''
+
+    def get_version(self) -> str:
+        '''
+            Returns controller component version string.
+
+            :return: Component version string.
+        '''
+

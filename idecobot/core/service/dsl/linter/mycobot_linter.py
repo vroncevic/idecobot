@@ -25,13 +25,14 @@ from collections.abc import Sequence
 
 from idecobot.core.model.dsl.ast.mycobot_program import MyCobotProgram
 from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic import MyCobotDiagnostic
+from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import MyCobotDiagnosticSeverity
 from idecobot.core.service.dsl.linter.rules.imycobot_lint_rule import IMyCobotLintRule
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -49,6 +50,7 @@ class MyCobotLinter:
                 | __init__ - Initializes linter with injected rule abstractions.
                 | lint - Executes rules and returns sorted diagnostics.
                 | is_valid - Checks whether program contains any error-level diagnostics.
+                | get_version - Returns linter version string.
     '''
 
     _rules: tuple[IMyCobotLintRule, ...]
@@ -88,4 +90,16 @@ class MyCobotLinter:
             :return: True if program has no errors, False otherwise.
             :exceptions: None.
         '''
-        return not any(d.is_error() for d in self.lint(program))
+        return not any(
+            d.severity == MyCobotDiagnosticSeverity.ERROR for d in self.lint(program)
+        )
+
+    def get_version(self) -> str:
+        '''
+            Returns linter version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__
+

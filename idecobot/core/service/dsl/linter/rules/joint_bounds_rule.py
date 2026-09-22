@@ -27,16 +27,14 @@ from typing import ClassVar
 from idecobot.core.model.dsl.ast.mycobot_command_type import MyCobotCommandType
 from idecobot.core.model.dsl.ast.mycobot_program import MyCobotProgram
 from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic import MyCobotDiagnostic
-from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import (
-    MyCobotDiagnosticSeverity,
-)
-from idecobot.core.model.kinematics.mycobot_bounds import MyCobotBounds
+from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import MyCobotDiagnosticSeverity
+from idecobot.core.service.kinematics.ikinematic_validator import IKinematicValidator
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -51,26 +49,27 @@ class JointBoundsRule:
             :attributes:
                 | RULE_NAME - Unique identifier string for this rule ('joint_bounds').
                 | DIAGNOSTIC_CODE - Diagnostic error code ('ERR_JOINT_BOUNDS').
-                | _bounds - MyCobotBounds domain limits.
+                | _validator - IKinematicValidator domain service.
             :methods:
-                | __init__ - Initializes rule with kinematic bounds.
+                | __init__ - Initializes rule with kinematic validator.
                 | lint - Checks all joint movement instructions in program.
                 | get_name - Returns rule identifier name.
+                | get_version - Returns rule version string.
     '''
 
     RULE_NAME: ClassVar[str] = 'joint_bounds'
     DIAGNOSTIC_CODE: ClassVar[str] = 'ERR_JOINT_BOUNDS'
 
-    _bounds: MyCobotBounds
+    _validator: IKinematicValidator
 
-    def __init__(self, bounds: MyCobotBounds) -> None:
+    def __init__(self, validator: IKinematicValidator) -> None:
         '''
-            Initializes JointBoundsRule with kinematic boundaries.
+            Initializes JointBoundsRule with kinematic validator.
 
-            :param bounds: Injected MyCobotBounds instance.
+            :param validator: Injected IKinematicValidator instance.
             :exceptions: None.
         '''
-        self._bounds = bounds
+        self._validator = validator
 
     def get_name(self) -> str:
         '''
@@ -101,7 +100,7 @@ class JointBoundsRule:
                 if key in inst.parameters:
                     val: float = inst.parameters[key]
 
-                    if not self._bounds.is_joint_in_range(joint_id, val):
+                    if not self._validator.is_joint_in_range(joint_id, val):
                         diagnostics.append(
                             MyCobotDiagnostic(
                                 line_number=inst.line_number,
@@ -115,3 +114,13 @@ class JointBoundsRule:
                         )
 
         return tuple(diagnostics)
+
+    def get_version(self) -> str:
+        '''
+            Returns rule version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__
+

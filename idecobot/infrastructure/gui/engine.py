@@ -36,7 +36,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -69,7 +69,7 @@ class IDECobotGUI:
                 | on_stream_progress - Handles streaming telemetry from background thread.
                 | append_log - Appends entry to serial monitor console.
                 | on_bytecode - Handles compiled bytecode display.
-                | constants - Property returning injected EngineConstants.
+                | get_version - Returns GUI adapter version string.
     '''
 
     _bundle: GUIBundle
@@ -78,11 +78,7 @@ class IDECobotGUI:
     _scanner: ISerialPortScanner
     _storage: IScriptStorageService
 
-    def __init__(
-        self,
-        bundle: GUIBundle,
-        constants: EngineConstants
-    ) -> None:
+    def __init__(self, bundle: GUIBundle, constants: EngineConstants) -> None:
         '''
             Initializes the IDE window and coordinates GUIBundle components.
 
@@ -259,11 +255,12 @@ class IDECobotGUI:
         '''
         self._bundle.log_panel.set_bytecode(frames)
 
-    @property
-    def constants(self) -> EngineConstants:
+    def get_version(self) -> str:
         '''
-            Returns injected EngineConstants.
+            Returns GUI adapter version string.
 
-            :return: EngineConstants instance.
+            :return: Version string.
+            :exceptions: None.
         '''
-        return self._constants
+        return __version__
+

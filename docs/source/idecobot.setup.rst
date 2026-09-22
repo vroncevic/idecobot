@@ -7,10 +7,12 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   idecobot.setup.bounds_loader
    idecobot.setup.bundle
    idecobot.setup.dep_validator
    idecobot.setup.dependencies
    idecobot.setup.factory
+   idecobot.setup.gui_factory
    idecobot.setup.keys
    idecobot.setup.opt_validator
    idecobot.setup.options

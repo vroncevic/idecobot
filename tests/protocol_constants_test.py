@@ -16,7 +16,7 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Unit tests for ProtocolConstants and SerialDefaults dataclasses and DI wiring.
+    Unit tests for ProtocolConstants and TransportConstants dataclasses and DI wiring.
 '''
 
 from __future__ import annotations
@@ -25,9 +25,17 @@ from dataclasses import FrozenInstanceError
 from unittest import TestCase, main
 
 from idecobot.core.model.communication.protocol_constants import ProtocolConstants
-from idecobot.core.model.communication.serial_defaults import SerialDefaults
+from idecobot.core.model.communication.stream_config import StreamConfig
+from idecobot.core.model.communication.stream_progress import StreamProgress
+from idecobot.core.model.communication.stream_state import StreamState
 from idecobot.infrastructure.communication.protocol.mycobot_protocol_codec import (
     MyCobotProtocolCodec,
+)
+from idecobot.infrastructure.communication.protocol.protocol_codec_factory import (
+    ProtocolCodecFactory,
+)
+from idecobot.infrastructure.communication.streamer.controller_factory import (
+    ControllerFactory,
 )
 from idecobot.infrastructure.communication.streamer.mycobot_controller import (
     MyCobotController,
@@ -38,12 +46,15 @@ from idecobot.infrastructure.communication.transport.mock_serial_transport impor
 from idecobot.infrastructure.communication.transport.serial_transport import (
     SerialTransport,
 )
+from idecobot.infrastructure.communication.transport.transport_constants import (
+    TransportConstants,
+)
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -51,18 +62,19 @@ __status__ = 'Updated'
 
 class TestProtocolConstants(TestCase):
     '''
-        Validates protocol constants, serial defaults, and pure DI injection.
+        Validates protocol constants, transport constants, and pure DI injection.
 
         It defines:
 
             :methods:
                 | test_protocol_constants_immutability - Verifies frozen dataclass immutability.
                 | test_protocol_constants_defaults - Verifies default header, footer, and cmd IDs.
-                | test_serial_defaults_immutability - Verifies serial defaults immutability.
-                | test_serial_defaults_values - Verifies standard serial parameters.
-                | test_serial_transport_di - Verifies pure DI of SerialDefaults into SerialTransport.
+                | test_transport_constants_immutability - Verifies transport constants immutability.
+                | test_transport_constants_values - Verifies standard serial parameters.
+                | test_serial_transport_di - Verifies pure DI of TransportConstants into SerialTransport.
                 | test_mock_serial_transport_di - Verifies DI into MockSerialTransport.
                 | test_controller_mock_interaction - Verifies Controller query flow with MockTransport.
+                | test_stream_config - Verifies StreamConfig attributes and immutability.
     '''
 
     def test_protocol_constants_immutability(self) -> None:
@@ -94,41 +106,44 @@ class TestProtocolConstants(TestCase):
         self.assertEqual(constants.format_gripper_command, '>BB')
         self.assertEqual(constants.format_joints_payload, '>6h')
 
-    def test_serial_defaults_immutability(self) -> None:
+    def test_transport_constants_immutability(self) -> None:
         '''
-            Verifies that SerialDefaults instances cannot be mutated.
+            Verifies that TransportConstants instances cannot be mutated.
         '''
-        defaults = SerialDefaults()
+        constants = TransportConstants()
         with self.assertRaises(FrozenInstanceError):
-            setattr(defaults, 'default_baudrate', 9600)
+            setattr(constants, 'default_baudrate', 9600)
 
-    def test_serial_defaults_values(self) -> None:
+    def test_transport_constants_values(self) -> None:
         '''
-            Verifies standard serial default values.
+            Verifies standard serial transport default values.
         '''
-        defaults = SerialDefaults()
-        self.assertEqual(defaults.default_port, '/dev/ttyUSB0')
-        self.assertEqual(defaults.default_baudrate, 115200)
-        self.assertIn(115200, defaults.standard_baudrates)
-        self.assertEqual(defaults.empty_payload, b'')
-        self.assertEqual(defaults.zero_bytes_written, 0)
+        constants = TransportConstants()
+        self.assertEqual(constants.default_port, '/dev/ttyUSB0')
+        self.assertEqual(constants.default_baudrate, 115200)
+        self.assertIn(115200, constants.standard_baudrates)
+        self.assertEqual(constants.empty_payload, b'')
+        self.assertEqual(constants.zero_bytes_written, 0)
 
     def test_serial_transport_di(self) -> None:
         '''
-            Verifies pure DI injection of SerialDefaults into SerialTransport.
+            Verifies pure DI injection of TransportConstants into SerialTransport.
         '''
-        defaults = SerialDefaults(default_port='/dev/custom_port', default_baudrate=57600)
-        transport = SerialTransport(defaults=defaults)
-        self.assertEqual(transport._port, '/dev/custom_port')
-        self.assertEqual(transport._baudrate, 57600)
+        constants = TransportConstants(default_port='/dev/custom_port', default_baudrate=57600)
+        transport = SerialTransport(constants=constants)
+        self.assertEqual(getattr(transport, '_port'), '/dev/custom_port')
+        self.assertEqual(getattr(transport, '_baudrate'), 57600)
 
     def test_mock_serial_transport_di(self) -> None:
         '''
             Verifies pure DI injection into MockSerialTransport.
         '''
-        defaults = SerialDefaults()
-        constants = ProtocolConstants()
-        mock = MockSerialTransport(defaults=defaults, constants=constants)
+        transport_constants = TransportConstants()
+        protocol_constants = ProtocolConstants()
+        mock = MockSerialTransport(
+            transport_constants=transport_constants,
+            protocol_constants=protocol_constants
+        )
         self.assertFalse(mock.is_open())
         self.assertTrue(mock.open())
         self.assertTrue(mock.is_open())
@@ -139,14 +154,17 @@ class TestProtocolConstants(TestCase):
         '''
             Verifies controller query flow with mock transport and protocol codec.
         '''
-        defaults = SerialDefaults()
-        constants = ProtocolConstants()
-        mock = MockSerialTransport(defaults=defaults, constants=constants)
-        codec = MyCobotProtocolCodec(constants=constants)
-        controller = MyCobotController(
+        transport_constants = TransportConstants()
+        protocol_constants = ProtocolConstants()
+        mock = MockSerialTransport(
+            transport_constants=transport_constants,
+            protocol_constants=protocol_constants
+        )
+        codec = ProtocolCodecFactory.create(constants=protocol_constants)
+        controller = ControllerFactory.create(
             transport=mock,
             codec=codec,
-            constants=constants
+            constants=protocol_constants
         )
         self.assertTrue(controller.connect('/dev/dummy', 115200))
         angles = controller.read_angles()
@@ -157,6 +175,34 @@ class TestProtocolConstants(TestCase):
                 self.assertAlmostEqual(a, 0.0)
         controller.disconnect()
         self.assertFalse(controller.is_connected())
+
+    def test_stream_config(self) -> None:
+        '''
+            Verifies StreamConfig attributes and immutability.
+        '''
+        config = StreamConfig(playback_rate=1.5)
+        self.assertEqual(config.playback_rate, 1.5)
+        with self.assertRaises(FrozenInstanceError):
+            setattr(config, 'playback_rate', 2.0)
+
+    def test_stream_progress(self) -> None:
+        '''
+            Verifies StreamProgress pure data structure attributes and immutability.
+        '''
+        progress = StreamProgress(
+            state=StreamState.STREAMING,
+            current_step=3,
+            total_steps=10,
+            command_name='move_joints',
+            progress_percent=30.0
+        )
+        self.assertEqual(progress.state, StreamState.STREAMING)
+        self.assertEqual(progress.current_step, 3)
+        self.assertEqual(progress.total_steps, 10)
+        self.assertEqual(progress.command_name, 'move_joints')
+        self.assertEqual(progress.progress_percent, 30.0)
+        with self.assertRaises(FrozenInstanceError):
+            setattr(progress, 'current_step', 4)
 
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Defines MyCobotDiagnostic immutable finding report model.
+    Defines MyCobotDiagnostic immutable finding report data model.
 '''
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -40,7 +40,7 @@ __status__ = 'Updated'
 @dataclass(frozen=True, slots=True)
 class MyCobotDiagnostic:
     '''
-        Represents a semantic analysis or linting finding on DSL source code.
+        Represents an immutable semantic analysis or linting finding on DSL source code.
 
         It defines:
 
@@ -49,45 +49,9 @@ class MyCobotDiagnostic:
                 | severity - Diagnostic severity (INFO, WARNING, ERROR).
                 | code - Short machine-readable violation code.
                 | message - Human-readable explanation of the issue.
-            :methods:
-                | format_report - Returns formatted diagnostic string.
-                | is_error - Verifies if diagnostic has ERROR severity.
-                | to_dict - Serializes diagnostic to dictionary representation.
     '''
 
     line_number: int
     severity: MyCobotDiagnosticSeverity
     code: str
     message: str
-
-    def format_report(self) -> str:
-        '''
-            Returns formatted diagnostic representation.
-
-            :return: Formatted report line string.
-            :exceptions: None.
-        '''
-        return f'[{self.severity.value}] Line {self.line_number}: ({self.code}) {self.message}'
-
-    def is_error(self) -> bool:
-        '''
-            Verifies if diagnostic is an ERROR severity violation.
-
-            :return: True if severity is ERROR, False otherwise.
-            :exceptions: None.
-        '''
-        return self.severity == MyCobotDiagnosticSeverity.ERROR
-
-    def to_dict(self) -> dict[str, object]:
-        '''
-            Serializes diagnostic to dictionary representation.
-
-            :return: Dictionary representation of diagnostic.
-            :exceptions: None.
-        '''
-        return {
-            'line_number': self.line_number,
-            'severity': self.severity.value,
-            'code': self.code,
-            'message': self.message,
-        }

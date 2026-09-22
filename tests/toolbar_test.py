@@ -26,6 +26,7 @@ from unittest import TestCase, main
 
 from idecobot.core.model.communication.stream_state import StreamState
 from idecobot.infrastructure.gui.theme.color_palette import ColorPalette
+from idecobot.infrastructure.gui.toolbar.itoolbar import IToolbar
 from idecobot.infrastructure.gui.toolbar.toolbar import Toolbar
 from idecobot.infrastructure.gui.toolbar.toolbar_constants import ToolbarConstants
 from idecobot.infrastructure.gui.toolbar.toolbar_factory import ToolbarFactory
@@ -34,7 +35,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -71,7 +72,7 @@ class TestToolbar(TestCase):
         '''
         self.root.destroy()
 
-    def _create_toolbar(self) -> Toolbar:
+    def create_toolbar(self) -> Toolbar:
         return ToolbarFactory.create_toolbar(
             parent=self.parent,
             on_run=lambda: self.calls.append('run'),
@@ -88,17 +89,19 @@ class TestToolbar(TestCase):
         '''
             Verifies ToolbarFactory produces a valid Toolbar with injected constants.
         '''
-        toolbar: Toolbar = self._create_toolbar()
+        toolbar: Toolbar = self.create_toolbar()
         self.assertIsNotNone(toolbar)
         self.assertIsInstance(toolbar, Toolbar)
+        self.assertIsInstance(toolbar, IToolbar)
         self.assertEqual(toolbar.constants, self.constants)
         self.assertIsNotNone(toolbar.get_frame())
+        self.assertEqual(toolbar.get_version(), '1.0.1')
 
     def test_set_connected_state(self) -> None:
         '''
             Verifies that toolbar controls update based on connection status.
         '''
-        toolbar: Toolbar = self._create_toolbar()
+        toolbar: Toolbar = self.create_toolbar()
         toolbar.set_connected(True)
         toolbar.set_connected(False)
         self.assertIsNotNone(toolbar)
@@ -107,7 +110,7 @@ class TestToolbar(TestCase):
         '''
             Verifies button state transitions during streaming lifecycle.
         '''
-        toolbar: Toolbar = self._create_toolbar()
+        toolbar: Toolbar = self.create_toolbar()
         toolbar.update_stream_state(StreamState.STREAMING)
         toolbar.update_stream_state(StreamState.PAUSED)
         toolbar.update_stream_state(StreamState.STOPPED)

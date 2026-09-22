@@ -24,7 +24,10 @@ from __future__ import annotations
 from tkinter import BOTH, Frame
 from tkinter.ttk import Notebook
 
+from idecobot.infrastructure.communication.protocol.iprotocol_framer import IProtocolFramer
+from idecobot.infrastructure.gui.log.bytecode_constants import BytecodeConstants
 from idecobot.infrastructure.gui.log.bytecode_preview import BytecodePreview
+from idecobot.infrastructure.gui.log.console_constants import ConsoleConstants
 from idecobot.infrastructure.gui.log.log_constants import LogConstants
 from idecobot.infrastructure.gui.log.log_panel import LogPanel
 from idecobot.infrastructure.gui.log.serial_console import SerialConsole
@@ -35,7 +38,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -49,6 +52,7 @@ class LogPanelFactory:
 
             :methods:
                 | create_log_panel - Constructs frame, tabs, consoles, and LogPanel.
+                | get_version - Returns factory version string.
     '''
 
     @classmethod
@@ -56,7 +60,11 @@ class LogPanelFactory:
         cls,
         parent: Frame,
         palette: ColorPalette,
-        fonts: FontConfig
+        fonts: FontConfig,
+        constants: LogConstants,
+        console_constants: ConsoleConstants,
+        bytecode_constants: BytecodeConstants,
+        framer: IProtocolFramer
     ) -> LogPanel:
         '''
             Constructs and wires the LogPanel composite view with all child tabs.
@@ -64,11 +72,13 @@ class LogPanelFactory:
             :param parent: Parent container Frame.
             :param palette: Injected ColorPalette color design tokens.
             :param fonts: Injected FontConfig typography tokens.
+            :param constants: Injected LogConstants configuration.
+            :param console_constants: Injected ConsoleConstants configuration.
+            :param bytecode_constants: Injected BytecodeConstants configuration.
+            :param framer: Injected IProtocolFramer protocol encoder.
             :return: Fully assembled LogPanel instance.
             :exceptions: None.
         '''
-        constants: LogConstants = LogConstants()
-
         frame: Frame = Frame(
             parent,
             bg=palette.bg_dark,
@@ -81,14 +91,21 @@ class LogPanelFactory:
         notebook.pack(fill=BOTH, expand=True)
 
         tab_console: Frame = Frame(notebook, bg=palette.bg_canvas)
-        console: SerialConsole = SerialConsole(tab_console, palette, fonts)
+        console: SerialConsole = SerialConsole(
+            tab_console,
+            palette,
+            fonts,
+            constants=console_constants
+        )
         notebook.add(tab_console, text=constants.tab_serial)
 
         tab_bytecode: Frame = Frame(notebook, bg=palette.bg_canvas)
         bytecode: BytecodePreview = BytecodePreview(
             tab_bytecode,
             palette,
-            fonts
+            fonts,
+            constants=bytecode_constants,
+            framer=framer
         )
         notebook.add(tab_bytecode, text=constants.tab_bytecode)
 
@@ -99,3 +116,13 @@ class LogPanelFactory:
             bytecode=bytecode,
             constants=constants
         )
+
+    @classmethod
+    def get_version(cls) -> str:
+        '''
+            Returns component implementation version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__

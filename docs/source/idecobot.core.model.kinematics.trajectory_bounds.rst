@@ -1,7 +1,7 @@
-idecobot.core.model.dsl.ast.imycobot\_instruction module
+idecobot.core.model.kinematics.trajectory\_bounds module
 ========================================================
 
-.. automodule:: idecobot.core.model.dsl.ast.imycobot_instruction
+.. automodule:: idecobot.core.model.kinematics.trajectory_bounds
    :members:
    :undoc-members:
    :show-inheritance:

@@ -37,7 +37,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -63,7 +63,7 @@ class IDECobotBundleRegistry:
             :return: The validated idecobot bundle.
             :exceptions:
                 | ATSValueError: If dependencies or bundle validation fails.
-                | ATSTypeError: If dependencies or bundle attributes do not match types.
+                | ATSTypeError:  If dependencies or bundle attributes do not match types.
         '''
         IDECobotBundleDependenciesValidator.validate(dependencies)
 
@@ -72,15 +72,10 @@ class IDECobotBundleRegistry:
         gui: IGUI | None = dependencies.get(IDECobotBundleKeys.DEPENDENCY_GUI) if dependencies else None
         streamer: IMyCobotStreamer | None = dependencies.get(IDECobotBundleKeys.DEPENDENCY_STREAMER) if dependencies else None
         cli: ICLI | None = dependencies.get(IDECobotBundleKeys.DEPENDENCY_CLI) if dependencies else None
+        bundle: IDECobotBundle = IDECobotBundle(base=base, service=service, gui=gui, streamer=streamer, cli=cli)
 
-        bundle: IDECobotBundle = IDECobotBundle(
-            base=base,
-            service=service,
-            gui=gui,
-            streamer=streamer,
-            cli=cli
-        )
         IDECobotBundleValidator.validate(bundle)
+
         return bundle
 
     @classmethod

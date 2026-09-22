@@ -34,7 +34,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -52,9 +52,10 @@ class MoveCommandParser:
             :methods:
                 | __init__ - Initializes parser with grammar constants.
                 | can_parse - Checks if command is MOVE.
+                | extract_pairs - Extracts key-value pairs from token stream.
+                | determine_type - Determines instruction type from parsed keys.
                 | parse - Parses MOVE tokens into MyCobotInstruction.
-                | _extract_pairs - Extracts key-value pairs from token stream.
-                | _determine_type - Determines instruction type from parsed keys.
+                | get_version - Returns parser version string.
     '''
 
     COMMAND_NAME: ClassVar[str] = 'MOVE'
@@ -80,7 +81,7 @@ class MoveCommandParser:
         '''
         return command_name == self.COMMAND_NAME
 
-    def _extract_pairs(
+    def extract_pairs(
         self,
         tokens: Sequence[MyCobotToken],
         line_number: int
@@ -123,7 +124,7 @@ class MoveCommandParser:
 
         return params
 
-    def _determine_type(
+    def determine_type(
         self,
         params: dict[str, float],
         line_number: int
@@ -172,8 +173,8 @@ class MoveCommandParser:
             :exceptions:
                 | ValueError: Invalid syntax or conflicting coordinates.
         '''
-        params: dict[str, float] = self._extract_pairs(tokens, line_number)
-        cmd_type: MyCobotCommandType = self._determine_type(params, line_number)
+        params: dict[str, float] = self.extract_pairs(tokens, line_number)
+        cmd_type: MyCobotCommandType = self.determine_type(params, line_number)
 
         return MyCobotInstruction(
             command_type=cmd_type,
@@ -181,3 +182,12 @@ class MoveCommandParser:
             parameters=params,
             raw_text=raw_text
         )
+
+    def get_version(self) -> str:
+        '''
+            Returns parser version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

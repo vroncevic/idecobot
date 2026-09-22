@@ -22,13 +22,14 @@ Info
 from __future__ import annotations
 
 from collections.abc import Sequence
+
 from serial.tools.list_ports import comports
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -66,3 +67,12 @@ class SerialPortScanner:
             :exceptions: None.
         '''
         return port in self.scan_ports()
+
+    def get_version(self) -> str:
+        '''
+            Returns scanner implementation version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__

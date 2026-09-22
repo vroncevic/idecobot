@@ -26,9 +26,7 @@ from collections.abc import Sequence
 from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
 from idecobot.core.model.dsl.ast.mycobot_program import MyCobotProgram
 from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic import MyCobotDiagnostic
-from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import (
-    MyCobotDiagnosticSeverity,
-)
+from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import MyCobotDiagnosticSeverity
 from idecobot.core.model.dsl.token.mycobot_token import MyCobotToken
 from idecobot.core.service.dsl.compiler.imycobot_compiler import IMyCobotCompiler
 from idecobot.core.service.dsl.lexer.imycobot_lexer import IMyCobotLexer
@@ -39,7 +37,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -63,6 +61,7 @@ class MyCobotDslService:
                 | lint - Evaluates AST with lint rules.
                 | compile - Compiles AST to binary frames.
                 | validate - End-to-end validation.
+                | get_version - Returns service version string.
     '''
 
     _lexer: IMyCobotLexer
@@ -136,10 +135,7 @@ class MyCobotDslService:
         '''
         return self._compiler.compile(program)
 
-    def validate(
-        self,
-        source: str
-    ) -> tuple[MyCobotProgram | None, Sequence[MyCobotDiagnostic]]:
+    def validate(self, source: str) -> tuple[MyCobotProgram | None, Sequence[MyCobotDiagnostic]]:
         '''
             End-to-end parse and lint returning AST and diagnostics.
 
@@ -160,4 +156,15 @@ class MyCobotDslService:
                 code='ERR_SYNTAX',
                 message=str(err)
             )
+
             return None, (err_diag,)
+
+    def get_version(self) -> str:
+        '''
+            Returns service version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__
+

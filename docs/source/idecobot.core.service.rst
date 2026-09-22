@@ -9,6 +9,7 @@ Subpackages
 
    idecobot.core.service.communication
    idecobot.core.service.dsl
+   idecobot.core.service.kinematics
 
 Submodules
 ----------

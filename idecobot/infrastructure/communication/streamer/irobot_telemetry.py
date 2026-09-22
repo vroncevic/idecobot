@@ -2,7 +2,7 @@
 
 '''
 Module
-    imycobot_program.py
+    irobot_telemetry.py
 Copyright
     Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
     idecobot is free software: you can redistribute it and/or modify it
@@ -16,7 +16,7 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Defines structural interface protocol for an AST program container.
+    Defines structural interface protocol for querying robot telemetry and hardware status.
 '''
 
 from __future__ import annotations
@@ -24,58 +24,46 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Protocol, runtime_checkable
 
-from idecobot.core.model.dsl.ast.imycobot_instruction import IMyCobotInstruction
-
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
 
 
 @runtime_checkable
-class IMyCobotProgram(Protocol):
+class IRobotTelemetry(Protocol):
     '''
-        Defines protocol IMyCobotProgram representing a complete AST program.
+        Defines structural interface protocol for robot hardware state queries.
 
         It defines:
 
             :methods:
-                | instructions - Returns the ordered sequence of AST instructions.
-                | count - Returns the total count of instructions.
-                | to_text - Serializes program back into formatted DSL source text.
-                | to_dict - Serializes program to dictionary representation.
+                | read_angles - Queries current joint angles from hardware.
+                | ping - Verifies robot hardware responsiveness.
+                | get_version - Returns robot telemetry component version string.
     '''
 
-    @property
-    def instructions(self) -> Sequence[IMyCobotInstruction]:
+    def read_angles(self) -> Sequence[float] | None:
         '''
-            Returns the ordered sequence of AST instructions.
+            Queries current joint angles from hardware.
 
-            :return: Sequence of IMyCobotInstruction nodes.
-        '''
-
-    @property
-    def count(self) -> int:
-        '''
-            Returns the total count of instructions.
-
-            :return: Total number of instructions in program.
+            :return: Sequence of 6 angles in degrees, or None if unavailable.
         '''
 
-    def to_text(self) -> str:
+    def ping(self) -> bool:
         '''
-            Serializes program instructions back into formatted DSL source text.
+            Verifies robot hardware responsiveness.
 
-            :return: Formatted multiline source script text.
+            :return: True if hardware responds to query, False otherwise.
         '''
 
-    def to_dict(self) -> dict[str, object]:
+    def get_version(self) -> str:
         '''
-            Serializes program to dictionary representation.
+            Returns robot telemetry component version string.
 
-            :return: Dictionary representation of program.
+            :return: Component version string.
         '''

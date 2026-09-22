@@ -37,7 +37,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -56,7 +56,6 @@ class IDECobot(Base):
             :methods:
                 | __init__ - Initializes the idecobot engine with bundle adapters and services.
                 | process - Executes the idecobot CLI command.
-                | get_cli - Returns the injected CLI adapter.
     '''
 
     _is_initialized: bool
@@ -70,16 +69,24 @@ class IDECobot(Base):
             :param bundle: The idecobot bundle containing adapters and services.
             :exceptions:
                 | ATSValueError: If bundle validation fails.
-                | ATSTypeError: If bundle types do not match requirements.
+                | ATSTypeError:  If bundle types do not match requirements.
         '''
         self._is_initialized = False
 
         try:
             IDECobotBundleValidator.validate(bundle)
+
+            # Initialize base engine
             super().__init__(bundle.base)
             self._logger = self.get_context().logger
 
+            # Mark as not initialized (waiting for other components to be initialized)
+            self._is_initialized = False
+
+            # Setting up primary inbound adapter (CLI interface)
             self._cli = bundle.cli
+
+            # Mark as initialized (all components initialized)
             self._is_initialized = all(
                 component.is_initialized() for component in [
                     bundle.base.option_manager,
@@ -92,19 +99,9 @@ class IDECobot(Base):
 
         except (ATSValueError, ATSTypeError) as exc:
             stdout.write(f'❌ idecobot: {exc}!\n')
-            raise
+
         except Exception as exc:
             stdout.write(f'❌ idecobot unexpected exception: {exc}!\n')
-            raise
-
-    def get_cli(self) -> ICLI:
-        '''
-            Returns the injected command line interface adapter.
-
-            :return: ICLI interface instance.
-            :exceptions: None.
-        '''
-        return self._cli
 
     def process(self, verbose: bool = False) -> bool:
         '''
