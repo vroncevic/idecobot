@@ -679,24 +679,24 @@ All communication between **idecobot** and the physical **myCobot 280** microcon
 | `idecobot/engine.py` | 57 | 57 | 0%|
 | `idecobot/infrastructure/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/cli/__init__.py` | 9 | 0 | 100%|
-| `idecobot/infrastructure/cli/engine.py` | 39 | 7 | 82%|
+| `idecobot/infrastructure/cli/engine.py` | 39 | 0 | 100%|
 | `idecobot/infrastructure/cli/icli.py` | 15 | 0 | 100%|
 | `idecobot/infrastructure/cli/setup/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/cli/setup/bundle.py` | 22 | 1 | 95%|
-| `idecobot/infrastructure/cli/setup/dep_validator.py` | 36 | 5 | 86%|
+| `idecobot/infrastructure/cli/setup/dep_validator.py` | 36 | 0 | 100%|
 | `idecobot/infrastructure/cli/setup/dependencies.py` | 18 | 0 | 100%|
 | `idecobot/infrastructure/cli/setup/factory.py` | 37 | 1 | 97%|
 | `idecobot/infrastructure/cli/setup/keys.py` | 28 | 0 | 100%|
-| `idecobot/infrastructure/cli/setup/opt_validator.py` | 36 | 5 | 86%|
+| `idecobot/infrastructure/cli/setup/opt_validator.py` | 36 | 0 | 100%|
 | `idecobot/infrastructure/cli/setup/options.py` | 17 | 0 | 100%|
 | `idecobot/infrastructure/cli/setup/registry.py` | 24 | 1 | 96%|
-| `idecobot/infrastructure/cli/setup/validator.py` | 43 | 5 | 88%|
+| `idecobot/infrastructure/cli/setup/validator.py` | 43 | 0 | 100%|
 | `idecobot/infrastructure/command/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/command/command.py` | 16 | 0 | 100%|
 | `idecobot/infrastructure/command/icommand_definition.py` | 14 | 0 | 100%|
 | `idecobot/infrastructure/command/icommand_executor.py` | 14 | 0 | 100%|
-| `idecobot/infrastructure/command/studio_command_definition.py` | 29 | 1 | 97%|
-| `idecobot/infrastructure/command/studio_command_executor.py` | 41 | 15 | 63%|
+| `idecobot/infrastructure/command/studio_command_definition.py` | 29 | 0 | 100%|
+| `idecobot/infrastructure/command/studio_command_executor.py` | 41 | 0 | 100%|
 | `idecobot/infrastructure/communication/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/communication/iserial_port_scanner.py` | 16 | 0 | 100%|
 | `idecobot/infrastructure/communication/protocol/__init__.py` | 9 | 0 | 100%|
@@ -728,7 +728,7 @@ All communication between **idecobot** and the physical **myCobot 280** microcon
 | `idecobot/infrastructure/communication/streamer/streamer_factory.py` | 19 | 0 | 100%|
 | `idecobot/infrastructure/communication/transport/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/communication/transport/mock_serial_transport.py` | 62 | 4 | 94%|
-| `idecobot/infrastructure/communication/transport/serial_transport.py` | 62 | 28 | 55%|
+| `idecobot/infrastructure/communication/transport/serial_transport.py` | 62 | 0 | 100%|
 | `idecobot/infrastructure/communication/transport/transport_constants.py` | 19 | 0 | 100%|
 | `idecobot/infrastructure/gui/__init__.py` | 9 | 0 | 100%|
 | `idecobot/infrastructure/gui/editor/__init__.py` | 9 | 0 | 100%|
@@ -774,7 +774,7 @@ All communication between **idecobot** and the physical **myCobot 280** microcon
 | `idecobot/infrastructure/gui/setup/dependencies.py` | 33 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/factory.py` | 112 | 7 | 94%|
 | `idecobot/infrastructure/gui/setup/gui_bundle_factory_constants.py` | 23 | 0 | 100%|
-| `idecobot/infrastructure/gui/setup/gui_event_handler.py` | 42 | 5 | 88%|
+| `idecobot/infrastructure/gui/setup/gui_event_handler.py` | 42 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/igui_event_handler.py` | 22 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/igui_event_target.py` | 22 | 0 | 100%|
 | `idecobot/infrastructure/gui/setup/keys.py` | 43 | 0 | 100%|
@@ -805,16 +805,16 @@ All communication between **idecobot** and the physical **myCobot 280** microcon
 | `idecobot/setup/__init__.py` | 9 | 0 | 100%|
 | `idecobot/setup/bounds_loader.py` | 41 | 2 | 95%|
 | `idecobot/setup/bundle.py` | 25 | 0 | 100%|
-| `idecobot/setup/dep_validator.py` | 36 | 5 | 86%|
+| `idecobot/setup/dep_validator.py` | 36 | 0 | 100%|
 | `idecobot/setup/dependencies.py` | 21 | 0 | 100%|
 | `idecobot/setup/factory.py` | 64 | 2 | 97%|
 | `idecobot/setup/gui_factory.py` | 34 | 0 | 100%|
-| `idecobot/setup/keys.py` | 33 | 1 | 97%|
-| `idecobot/setup/opt_validator.py` | 36 | 16 | 56%|
+| `idecobot/setup/keys.py` | 33 | 0 | 100%|
+| `idecobot/setup/opt_validator.py` | 36 | 0 | 100%|
 | `idecobot/setup/options.py` | 16 | 0 | 100%|
 | `idecobot/setup/registry.py` | 34 | 1 | 97%|
-| `idecobot/setup/validator.py` | 53 | 5 | 91%|
-| **Total** | 6365 | 501 | 92% |
+| `idecobot/setup/validator.py` | 53 | 0 | 100%|
+| **Total** | 6365 | 403 | 94% |
 
 </details>
 
@@ -873,8 +873,8 @@ python3 main.py studio --file ./scripts/pick_and_place.cobot --port /dev/ttyACM0
 
 More documentation and info at
 
-* `idecobot.readthedocs.io <https://idecobot.readthedocs.io>`_
-* `www.python.org <https://www.python.org/>`_
+* [idecobot.readthedocs.io](https://idecobot.readthedocs.io)
+* [www.python.org](https://www.python.org/)
 
 ### 👥 Contributing
 
