@@ -32,7 +32,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -46,12 +46,13 @@ class ThemeManager:
 
             :methods:
                 | apply_theme - Applies dark theme stylesheet and color palette to root window.
-                | _configure_buttons - Configures button styles using design tokens and constants.
-                | _configure_containers - Configures container, label, and notebook styles.
+                | configure_buttons - Configures button styles using design tokens and constants.
+                | configure_containers - Configures container, label, and notebook styles.
+                | get_version - Returns theme manager version string.
     '''
 
     @classmethod
-    def _configure_buttons(
+    def configure_buttons(
         cls,
         style: Style,
         palette: ColorPalette,
@@ -150,7 +151,7 @@ class ThemeManager:
         )
 
     @classmethod
-    def _configure_containers(
+    def configure_containers(
         cls,
         style: Style,
         palette: ColorPalette,
@@ -235,5 +236,15 @@ class ThemeManager:
         root.configure(bg=palette.bg_dark)
         style: Style = Style(root)
         style.theme_use(constants.theme_name)
-        cls._configure_buttons(style, palette, fonts, constants)
-        cls._configure_containers(style, palette, fonts, constants)
+        cls.configure_buttons(style, palette, fonts, constants)
+        cls.configure_containers(style, palette, fonts, constants)
+
+    @classmethod
+    def get_version(cls) -> str:
+        '''
+            Returns theme manager version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

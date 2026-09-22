@@ -33,7 +33,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -51,7 +51,8 @@ class MyCobotParser:
                 | __init__ - Initializes parser registry.
                 | parse - Parses token sequence and lines into MyCobotProgram.
                 | parse_statement - Dispatches statement tokens to matching parser.
-                | _split_lines - Splits tokens into per-statement lists.
+                | split_lines - Splits tokens into per-statement lists.
+                | get_version - Returns parser implementation version string.
     '''
 
     def __init__(self, parsers: Sequence[ICommandParser]) -> None:
@@ -63,7 +64,7 @@ class MyCobotParser:
         '''
         self._parsers: tuple[ICommandParser, ...] = tuple(parsers)
 
-    def _split_lines(self, tokens: Sequence[MyCobotToken]) -> list[list[MyCobotToken]]:
+    def split_lines(self, tokens: Sequence[MyCobotToken]) -> list[list[MyCobotToken]]:
         '''
             Splits token sequence by NEWLINE into statement chunks.
 
@@ -134,7 +135,7 @@ class MyCobotParser:
             :exceptions:
                 | ValueError: Syntax error during statement parsing.
         '''
-        grouped_lines: list[list[MyCobotToken]] = self._split_lines(tokens)
+        grouped_lines: list[list[MyCobotToken]] = self.split_lines(tokens)
         instructions: list[MyCobotInstruction] = []
 
         for stmt_tokens in grouped_lines:
@@ -144,3 +145,12 @@ class MyCobotParser:
                 instructions.append(inst)
 
         return MyCobotProgram(instructions=tuple(instructions))
+
+    def get_version(self) -> str:
+        '''
+            Returns parser implementation version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

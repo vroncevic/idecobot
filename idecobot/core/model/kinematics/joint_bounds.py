@@ -2,7 +2,7 @@
 
 '''
 Module
-    __init__.py
+    joint_bounds.py
 Copyright
     Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
     idecobot is free software: you can redistribute it and/or modify it
@@ -16,16 +16,44 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Initializes package.
+    Defines JointBounds immutable value object for 6-DOF robotic manipulator joints.
 '''
 
 from __future__ import annotations
+
+from dataclasses import dataclass
+
+from idecobot.core.model.kinematics.joint_limit import JointLimit
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
+
+
+@dataclass(frozen=True, slots=True)
+class JointBounds:
+    '''
+        Defines mechanical angular boundaries for all 6 joints of myCobot 280.
+
+        It defines:
+
+            :attributes:
+                | j1 - Angular limits for Joint 1.
+                | j2 - Angular limits for Joint 2.
+                | j3 - Angular limits for Joint 3.
+                | j4 - Angular limits for Joint 4.
+                | j5 - Angular limits for Joint 5.
+                | j6 - Angular limits for Joint 6.
+    '''
+
+    j1: JointLimit
+    j2: JointLimit
+    j3: JointLimit
+    j4: JointLimit
+    j5: JointLimit
+    j6: JointLimit

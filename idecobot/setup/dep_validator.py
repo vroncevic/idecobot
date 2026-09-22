@@ -34,7 +34,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -59,7 +59,7 @@ class IDECobotBundleDependenciesValidator:
             :param dependencies: The idecobot bundle dependencies to validate.
             :exceptions:
                 | ATSValueError: The dependencies must be provided.
-                | ATSTypeError: The dependencies must be a Mapping and match expected types.
+                | ATSTypeError:  The dependencies must be a Mapping and match expected types.
         '''
         ctx: str = 'idecobot_bundle_dependencies_validator::validate(...)'
         msg_none: str = 'the idecobot bundle dependencies must be provided'
@@ -89,5 +89,6 @@ class IDECobotBundleDependenciesValidator:
         try:
             cls.validate(dependencies)
             return True
+
         except (ATSValueError, ATSTypeError):
             return False

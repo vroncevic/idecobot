@@ -29,7 +29,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -45,6 +45,7 @@ class IToolbar(Protocol):
             :methods:
                 | update_stream_state - Updates button active/disabled states based on stream state.
                 | set_connected - Updates connection indicator state.
+                | get_version - Returns protocol version string.
     '''
 
     def update_stream_state(self, state: StreamState) -> None:
@@ -60,3 +61,11 @@ class IToolbar(Protocol):
 
             :param connected: True if robot is linked, False otherwise.
         '''
+
+    def get_version(self) -> str:
+        '''
+            Returns protocol version string.
+
+            :return: Version string.
+        '''
+

@@ -23,7 +23,13 @@ from __future__ import annotations
 
 from unittest import TestCase, main
 
+from idecobot.core.model.kinematics.joint_bounds import JointBounds
+from idecobot.core.model.kinematics.joint_limit import JointLimit
 from idecobot.core.model.kinematics.mycobot_bounds import MyCobotBounds
+from idecobot.core.model.kinematics.spatial_bounds import SpatialBounds
+from idecobot.core.model.kinematics.speed_bounds import SpeedBounds
+from idecobot.core.model.kinematics.trajectory_bounds import TrajectoryBounds
+from idecobot.core.service.kinematics.kinematic_validator import KinematicValidator
 from idecobot.infrastructure.gui.jog.jog_constants import JogConstants
 from idecobot.infrastructure.gui.jog.jog_coordinator import JogCoordinator
 
@@ -31,7 +37,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -43,6 +49,9 @@ class MockController:
     '''
 
     def __init__(self) -> None:
+        '''
+            Initializes mock controller recording states.
+        '''
         self.last_angles: list[float] | None = None
         self.last_coords: list[float] | None = None
         self.last_speed: int = 0
@@ -50,38 +59,65 @@ class MockController:
         self.gripper_state: int = 0
 
     def send_angles(self, angles: list[float], speed: int) -> bool:
+        '''
+            Records angular motion parameters.
+        '''
         self.last_angles = list(angles)
         self.last_speed = speed
         return True
 
     def send_coords(self, coords: list[float], speed: int) -> bool:
+        '''
+            Records Cartesian coordinate parameters.
+        '''
         self.last_coords = list(coords)
         self.last_speed = speed
         return True
 
     def set_gripper(self, state: int, speed: int) -> bool:
+        '''
+            Records gripper state and actuation speed.
+        '''
         self.gripper_state = state
         self.last_speed = speed
         return True
 
     def power(self, on: bool) -> bool:
+        '''
+            Records power switch status.
+        '''
         self.power_state = on
         return True
 
     def home(self, speed: int) -> bool:
+        '''
+            Records homing motion execution.
+        '''
         self.last_speed = speed
         return True
 
     def is_connected(self) -> bool:
+        '''
+            Reports simulated connectivity state.
+        '''
         return True
 
     def get_angles(self) -> list[float] | None:
+        '''
+            Returns simulated current joint angles.
+        '''
         return [0.0] * 6
 
     def get_coords(self) -> list[float] | None:
+        '''
+            Returns simulated current Cartesian coordinates.
+        '''
         return [0.0] * 6
 
     def stop(self) -> bool:
+        '''
+            Records motion cancellation command.
+        '''
         return True
 
 
@@ -106,12 +142,25 @@ class TestJogCoordinator(TestCase):
             Sets up test fixture with coordinator and mock controller.
         '''
         self.controller = MockController()
-        self.bounds = MyCobotBounds()
+        self.bounds = MyCobotBounds(
+            joints=JointBounds(
+                j1=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j2=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j3=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j4=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j5=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j6=JointLimit(min_deg=-175.0, max_deg=175.0)
+            ),
+            spatial=SpatialBounds(max_reach_mm=285.0, min_z_mm=-10.0),
+            speed=SpeedBounds(min_speed=1, max_speed=100, default_speed=30),
+            trajectory=TrajectoryBounds(max_jerk_deg=60.0)
+        )
+        self.validator = KinematicValidator(bounds=self.bounds)
         self.constants = JogConstants()
         self.logs: list[str] = []
         self.coordinator = JogCoordinator(
             controller=self.controller,
-            bounds=self.bounds,
+            validator=self.validator,
             constants=self.constants,
             on_log=self.logs.append
         )

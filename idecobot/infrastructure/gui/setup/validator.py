@@ -31,18 +31,18 @@ from idecobot.infrastructure.communication.iserial_port_scanner import ISerialPo
 from idecobot.infrastructure.gui.editor.editor_panel import EditorPanel
 from idecobot.infrastructure.gui.jog.jog_panel import JogPanel
 from idecobot.infrastructure.gui.log.log_panel import LogPanel
-from idecobot.infrastructure.gui.menu.menu_bar import MenuBar
+from idecobot.infrastructure.gui.menu.imenu_bar import IMenuBar
 from idecobot.infrastructure.gui.setup.bundle import GUIBundle
 from idecobot.infrastructure.gui.stream.connection_panel import ConnectionPanel
 from idecobot.infrastructure.gui.stream.status_bar import StatusBar
-from idecobot.infrastructure.gui.toolbar.toolbar import Toolbar
+from idecobot.infrastructure.gui.toolbar.itoolbar import IToolbar
 from idecobot.infrastructure.storage.iscript_storage_service import IScriptStorageService
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -90,10 +90,10 @@ class GUIBundleValidator:
         istype(bundle.root, Tk, ctx, 'the root window must be an instance of Tk')
 
         not_none(bundle.menu_bar, ctx, 'the menu bar must be provided')
-        istype(bundle.menu_bar, MenuBar, ctx, 'the menu bar must be an instance of MenuBar')
+        istype(bundle.menu_bar, IMenuBar, ctx, 'the menu bar must be an instance of IMenuBar')
 
         not_none(bundle.toolbar, ctx, 'the toolbar must be provided')
-        istype(bundle.toolbar, Toolbar, ctx, 'the toolbar must be an instance of Toolbar')
+        istype(bundle.toolbar, IToolbar, ctx, 'the toolbar must be an instance of IToolbar')
 
         not_none(bundle.port_panel, ctx, 'the port panel must be provided')
         istype(bundle.port_panel, ConnectionPanel, ctx, 'the port panel must be an instance of ConnectionPanel')

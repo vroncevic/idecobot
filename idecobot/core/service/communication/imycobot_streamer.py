@@ -33,7 +33,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -53,13 +53,10 @@ class IMyCobotStreamer(Protocol):
                 | stop - Cancels active frame streaming.
                 | get_state - Queries current streamer lifecycle state.
                 | get_progress - Retrieves current streaming progress snapshot.
+                | get_version - Returns protocol interface version.
     '''
 
-    def stream(
-        self,
-        frames: Sequence[MyCobotFrame],
-        config: StreamConfig | None = None
-    ) -> bool:
+    def stream(self, frames: Sequence[MyCobotFrame], config: StreamConfig | None = None) -> bool:
         '''
             Initiates streaming of compiled frame sequence.
 
@@ -95,4 +92,11 @@ class IMyCobotStreamer(Protocol):
             Retrieves current streaming progress snapshot.
 
             :return: Current StreamProgress instance.
+        '''
+
+    def get_version(self) -> str:
+        '''
+            Returns protocol interface version string.
+
+            :return: Version string.
         '''

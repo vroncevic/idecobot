@@ -25,6 +25,7 @@ from collections.abc import Sequence
 from tkinter import BOTH, END, RIGHT, Y, Frame, Scrollbar, Text
 
 from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
+from idecobot.infrastructure.communication.protocol.iprotocol_framer import IProtocolFramer
 from idecobot.infrastructure.gui.log.bytecode_constants import BytecodeConstants
 from idecobot.infrastructure.gui.theme.color_palette import ColorPalette
 from idecobot.infrastructure.gui.theme.font_config import FontConfig
@@ -33,7 +34,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -49,19 +50,22 @@ class BytecodePreview:
                 | _palette - Injected ColorPalette color tokens.
                 | _fonts - Injected FontConfig typography tokens.
                 | _constants - Injected BytecodeConstants configuration.
+                | _framer - Injected IProtocolFramer protocol encoder.
                 | _frame - Container Frame widget.
                 | _text - Read-only Text display area.
             :methods:
                 | __init__ - Initializes bytecode preview layout.
                 | get_frame - Returns container Frame.
-                | set_frames - Renders compiled frame sequence as formatted text.
-                | clear - Clears bytecode preview.
+                | set_frames - Renders compiled frame sequence into formatted hex table.
+                | clear - Clears hex preview area.
+                | get_version - Returns preview component version.
                 | constants - Property returning injected BytecodeConstants.
     '''
 
     _palette: ColorPalette
     _fonts: FontConfig
     _constants: BytecodeConstants
+    _framer: IProtocolFramer
     _frame: Frame
     _text: Text
 
@@ -70,20 +74,23 @@ class BytecodePreview:
         parent: Frame,
         palette: ColorPalette,
         fonts: FontConfig,
-        constants: BytecodeConstants | None = None
+        constants: BytecodeConstants,
+        framer: IProtocolFramer
     ) -> None:
         '''
-            Initializes preview text area with injected constants.
+            Initializes preview text area with injected constants and framer.
 
             :param parent: Parent Frame widget.
             :param palette: Injected ColorPalette color design tokens.
             :param fonts: Injected FontConfig typography tokens.
-            :param constants: Optional injected BytecodeConstants configuration.
+            :param constants: Injected BytecodeConstants configuration.
+            :param framer: Injected IProtocolFramer protocol encoder.
             :exceptions: None.
         '''
         self._palette = palette
         self._fonts = fonts
-        self._constants = constants if constants is not None else BytecodeConstants()
+        self._constants = constants
+        self._framer = framer
 
         self._frame = Frame(parent, bg=self._palette.bg_canvas)
         self._frame.pack(fill=BOTH, expand=True)
@@ -131,7 +138,7 @@ class BytecodePreview:
         for idx, frame in enumerate(frames):
             step_num: int = idx + 1
             cmd_hex: str = f'0x{frame.cmd_id:02X}'
-            frame_hex: str = frame.to_hex_string()
+            frame_hex: str = self._framer.format_hex(frame)
             delay_str: str = f'{frame.delay_after_sec:.2f}s'
             line: str = f'{step_num:<6} {cmd_hex:<6} {frame_hex:<40} {delay_str}\n'
             self._text.insert(END, line)
@@ -147,6 +154,15 @@ class BytecodePreview:
         self._text.config(state=self._constants.state_normal)
         self._text.delete(self._constants.index_start, END)
         self._text.config(state=self._constants.state_disabled)
+
+    def get_version(self) -> str:
+        '''
+            Returns component implementation version.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__
 
     @property
     def constants(self) -> BytecodeConstants:

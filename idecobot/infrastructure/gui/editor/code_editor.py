@@ -32,7 +32,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -58,8 +58,10 @@ class CodeEditor:
                 | get_text - Returns full editor text content.
                 | set_text - Replaces editor text content.
                 | clear - Clears editor content.
-                | _on_scroll - Synchronizes line numbers with text scroll.
-                | _on_content_changed - Updates line numbering and triggers syntax coloring.
+                | on_scroll - Synchronizes line numbers with text scroll.
+                | update_line_numbers - Recomputes line numbers for gutter.
+                | on_content_changed - Updates line numbering and triggers syntax coloring.
+                | get_version - Returns code editor component version string.
     '''
 
     def __init__(
@@ -117,7 +119,7 @@ class CodeEditor:
         )
         self._text.pack(side=LEFT, fill=BOTH, expand=True)
 
-        self._text.config(yscrollcommand=self._on_scroll)
+        self._text.config(yscrollcommand=self.on_scroll)
         scrollbar.config(command=self._text.yview)
 
         self._highlighter: SyntaxHighlighter = SyntaxHighlighter(
@@ -125,9 +127,9 @@ class CodeEditor:
             self._constants,
             self._fonts
         )
-        self._text.bind('<KeyRelease>', lambda _: self._on_content_changed())
-        self._text.bind('<ButtonRelease-1>', lambda _: self._on_content_changed())
-        self._update_line_numbers()
+        self._text.bind('<KeyRelease>', lambda _: self.on_content_changed())
+        self._text.bind('<ButtonRelease-1>', lambda _: self.on_content_changed())
+        self.update_line_numbers()
 
     def get_frame(self) -> Frame:
         '''
@@ -138,7 +140,7 @@ class CodeEditor:
         '''
         return self._frame
 
-    def _on_scroll(self, first: float, last: float) -> None:
+    def on_scroll(self, first: float, last: float) -> None:
         '''
             Synchronizes gutter scroll with editor scroll.
 
@@ -148,7 +150,7 @@ class CodeEditor:
         '''
         self._line_numbers.yview_moveto(first)
 
-    def _update_line_numbers(self) -> None:
+    def update_line_numbers(self) -> None:
         '''
             Recomputes line numbers for gutter.
 
@@ -161,13 +163,13 @@ class CodeEditor:
         self._line_numbers.insert('1.0', numbers_str)
         self._line_numbers.config(state='disabled')
 
-    def _on_content_changed(self) -> None:
+    def on_content_changed(self) -> None:
         '''
             Handles text modification events by updating gutter and styling.
 
             :exceptions: None.
         '''
-        self._update_line_numbers()
+        self.update_line_numbers()
         self._highlighter.highlight()
 
     def get_text(self) -> str:
@@ -188,7 +190,7 @@ class CodeEditor:
         '''
         self._text.delete('1.0', END)
         self._text.insert('1.0', content)
-        self._on_content_changed()
+        self.on_content_changed()
 
     def clear(self) -> None:
         '''
@@ -197,3 +199,12 @@ class CodeEditor:
             :exceptions: None.
         '''
         self.set_text('')
+
+    def get_version(self) -> str:
+        '''
+            Returns code editor component version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

@@ -32,7 +32,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -52,9 +52,11 @@ class CartesianPanel:
                 | _labels - Mapping of axis name to coordinate readout Label widgets.
             :methods:
                 | __init__ - Initializes Cartesian jog controls.
+                | create_axis_row - Builds a single axis row with controls and readout.
                 | get_frame - Returns container Frame.
                 | update_coords - Updates displayed coordinate readouts.
                 | constants - Property returning injected CartesianConstants.
+                | get_version - Returns Cartesian panel version string.
     '''
 
     _palette: ColorPalette
@@ -99,9 +101,9 @@ class CartesianPanel:
         lbl_title.pack(anchor=W, pady=self._constants.pad_title_y)
 
         for axis in self._constants.axes:
-            self._create_axis_row(axis)
+            self.create_axis_row(axis)
 
-    def _create_axis_row(self, axis: str) -> None:
+    def create_axis_row(self, axis: str) -> None:
         '''
             Builds a single axis row with label, minus button, readout, plus button.
 
@@ -183,3 +185,12 @@ class CartesianPanel:
             :return: CartesianConstants instance.
         '''
         return self._constants
+
+    def get_version(self) -> str:
+        '''
+            Returns Cartesian panel version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

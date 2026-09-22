@@ -16,20 +16,18 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Defines StreamConfig immutable data model for hardware serial parameters.
+    Defines StreamConfig immutable data model for frame stream execution.
 '''
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from idecobot.core.model.communication.serial_defaults import SerialDefaults
-
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -38,18 +36,12 @@ __status__ = 'Updated'
 @dataclass(frozen=True, slots=True)
 class StreamConfig:
     '''
-        Encapsulates serial port connection and communication timeout settings.
+        Encapsulates stream execution parameters.
 
         It defines:
 
             :attributes:
-                | port - Serial device path (defaults to SerialDefaults.default_port).
-                | baudrate - Serial transmission baudrate (defaults to SerialDefaults.default_baudrate).
-                | timeout_sec - Read/write timeout in seconds (defaults to SerialDefaults.default_timeout).
                 | playback_rate - Playback speed scaling factor.
     '''
 
-    port: str = SerialDefaults.default_port
-    baudrate: int = SerialDefaults.default_baudrate
-    timeout_sec: float = SerialDefaults.default_timeout
-    playback_rate: float = 1.0
+    playback_rate: float

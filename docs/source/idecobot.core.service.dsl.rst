@@ -18,6 +18,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   idecobot.core.service.dsl.dsl_service_factory
    idecobot.core.service.dsl.imycobot_dsl_service
    idecobot.core.service.dsl.mycobot_dsl_service
 

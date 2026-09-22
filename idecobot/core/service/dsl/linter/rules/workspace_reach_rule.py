@@ -28,16 +28,14 @@ from typing import ClassVar
 from idecobot.core.model.dsl.ast.mycobot_command_type import MyCobotCommandType
 from idecobot.core.model.dsl.ast.mycobot_program import MyCobotProgram
 from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic import MyCobotDiagnostic
-from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import (
-    MyCobotDiagnosticSeverity,
-)
-from idecobot.core.model.kinematics.mycobot_bounds import MyCobotBounds
+from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import MyCobotDiagnosticSeverity
+from idecobot.core.model.kinematics.spatial_bounds import SpatialBounds
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -52,23 +50,24 @@ class WorkspaceReachRule:
             :attributes:
                 | RULE_NAME - Unique identifier string for this rule ('workspace_reach').
                 | DIAGNOSTIC_CODE - Diagnostic error code ('ERR_WORKSPACE_REACH').
-                | _bounds - MyCobotBounds domain limits.
+                | _bounds - SpatialBounds domain limits.
             :methods:
                 | __init__ - Initializes rule with kinematic bounds.
                 | lint - Checks all cartesian movement instructions in program.
                 | get_name - Returns rule identifier name.
+                | get_version - Returns rule version string.
     '''
 
     RULE_NAME: ClassVar[str] = 'workspace_reach'
     DIAGNOSTIC_CODE: ClassVar[str] = 'ERR_WORKSPACE_REACH'
 
-    _bounds: MyCobotBounds
+    _bounds: SpatialBounds
 
-    def __init__(self, bounds: MyCobotBounds) -> None:
+    def __init__(self, bounds: SpatialBounds) -> None:
         '''
-            Initializes WorkspaceReachRule with kinematic boundaries.
+            Initializes WorkspaceReachRule with spatial boundaries.
 
-            :param bounds: Injected MyCobotBounds instance.
+            :param bounds: Injected SpatialBounds instance.
             :exceptions: None.
         '''
         self._bounds = bounds
@@ -115,3 +114,13 @@ class WorkspaceReachRule:
                 )
 
         return tuple(diagnostics)
+
+    def get_version(self) -> str:
+        '''
+            Returns rule version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__
+

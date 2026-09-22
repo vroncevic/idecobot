@@ -25,6 +25,9 @@ from collections.abc import Callable, Sequence
 
 from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
 from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic import MyCobotDiagnostic
+from idecobot.core.model.dsl.diagnostic.mycobot_diagnostic_severity import (
+    MyCobotDiagnosticSeverity,
+)
 from idecobot.core.service.dsl.imycobot_dsl_service import IMyCobotDslService
 from idecobot.infrastructure.gui.editor.editor_constants import EditorConstants
 from idecobot.infrastructure.gui.editor.example_catalog import ExampleCatalog
@@ -33,7 +36,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -47,8 +50,8 @@ class EditorCoordinator:
 
             :attributes:
                 | _dsl_service - Injected domain DSL service abstraction.
-                | _on_bytecode - Optional callback receiving compiled robot frames.
-                | _on_log - Optional logging callback.
+                | _on_bytecode - Injected callback receiving compiled robot frames.
+                | _on_log - Injected logging callback.
                 | _constants - Injected EditorConstants configuration.
             :methods:
                 | __init__ - Initializes editor coordinator with service, callbacks, constants.
@@ -60,40 +63,30 @@ class EditorCoordinator:
     '''
 
     _dsl_service: IMyCobotDslService
-    _on_bytecode: Callable[[Sequence[MyCobotFrame]], None] | None
-    _on_log: Callable[[str], None] | None
+    _on_bytecode: Callable[[Sequence[MyCobotFrame]], None]
+    _on_log: Callable[[str], None]
     _constants: EditorConstants
 
     def __init__(
         self,
         dsl_service: IMyCobotDslService,
-        on_bytecode: Callable[[Sequence[MyCobotFrame]], None] | None = None,
-        on_log: Callable[[str], None] | None = None,
-        constants: EditorConstants | None = None
+        on_bytecode: Callable[[Sequence[MyCobotFrame]], None],
+        on_log: Callable[[str], None],
+        constants: EditorConstants
     ) -> None:
         '''
             Initializes editor coordinator.
 
             :param dsl_service: Injected IMyCobotDslService abstraction.
-            :param on_bytecode: Optional callback receiving compiled robot frames.
-            :param on_log: Optional logging callback.
-            :param constants: Optional injected EditorConstants configuration.
+            :param on_bytecode: Injected callback receiving compiled robot frames.
+            :param on_log: Injected logging callback.
+            :param constants: Injected EditorConstants configuration.
             :exceptions: None.
         '''
         self._dsl_service = dsl_service
         self._on_bytecode = on_bytecode
         self._on_log = on_log
-        self._constants = constants if constants is not None else EditorConstants()
-
-    def _log(self, message: str) -> None:
-        '''
-            Dispatches log message if logging callback is registered.
-
-            :param message: Message string to log.
-            :exceptions: None.
-        '''
-        if self._on_log is not None:
-            self._on_log(message)
+        self._constants = constants
 
     def validate_code(
         self,
@@ -107,14 +100,18 @@ class EditorCoordinator:
             :exceptions: None.
         '''
         program, diagnostics = self._dsl_service.validate(code)
-        has_errors: bool = any(d.is_error() for d in diagnostics)
+        has_errors: bool = any(
+            d.severity == MyCobotDiagnosticSeverity.ERROR for d in diagnostics
+        )
 
         if program is not None and not has_errors:
-            self._log(self._constants.msg_log_validation_passed)
+            self._on_log(self._constants.msg_log_validation_passed)
 
             return True, self._constants.msg_validation_passed, diagnostics
 
-        errors_count: int = sum(1 for d in diagnostics if d.is_error())
+        errors_count: int = sum(
+            1 for d in diagnostics if d.severity == MyCobotDiagnosticSeverity.ERROR
+        )
         warns_count: int = len(diagnostics) - errors_count
 
         if diagnostics:
@@ -127,10 +124,10 @@ class EditorCoordinator:
             for diag in diagnostics:
                 prefix: str = (
                     self._constants.prefix_error
-                    if diag.is_error()
+                    if diag.severity == MyCobotDiagnosticSeverity.ERROR
                     else self._constants.prefix_warn
                 )
-                self._log(
+                self._on_log(
                     f'{prefix} [Line {diag.line_number}] [{diag.code}]: {diag.message}'
                 )
 
@@ -138,10 +135,7 @@ class EditorCoordinator:
 
         return False, self._constants.msg_validation_failed, diagnostics
 
-    def compile_code(
-        self,
-        code: str
-    ) -> tuple[bool, str, Sequence[MyCobotFrame] | None]:
+    def compile_code(self, code: str) -> tuple[bool, str, Sequence[MyCobotFrame] | None]:
         '''
             Compiles DSL source code into executable binary MyCobotFrames.
 
@@ -150,19 +144,20 @@ class EditorCoordinator:
             :exceptions: None.
         '''
         program, diagnostics = self._dsl_service.validate(code)
-        has_errors: bool = any(d.is_error() for d in diagnostics)
+        has_errors: bool = any(
+            d.severity == MyCobotDiagnosticSeverity.ERROR for d in diagnostics
+        )
 
         if program is None or has_errors:
-            is_valid, summary, _ = self.validate_code(code)
-            self._log(self._constants.msg_compilation_aborted)
+            _, summary, _ = self.validate_code(code)
+            self._on_log(self._constants.msg_compilation_aborted)
 
             return False, summary, None
 
         frames: Sequence[MyCobotFrame] = self._dsl_service.compile(program)
 
-        if self._on_bytecode is not None:
-            self._on_bytecode(frames)
-        self._log(f'⚙ Successfully compiled {len(frames)} binary robot frames.')
+        self._on_bytecode(frames)
+        self._on_log(f'⚙ Successfully compiled {len(frames)} binary robot frames.')
 
         return True, self._constants.msg_validation_passed, frames
 
@@ -175,7 +170,7 @@ class EditorCoordinator:
             :exceptions: None.
         '''
         script: str = ExampleCatalog.get_example(name)
-        self._log(f'{self._constants.log_template_loaded} {name}')
+        self._on_log(f'{self._constants.log_template_loaded} {name}')
 
         return script
 

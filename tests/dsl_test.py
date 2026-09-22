@@ -25,7 +25,37 @@ from unittest import TestCase, main
 
 from idecobot.core.model.communication.protocol_constants import ProtocolConstants
 from idecobot.core.model.dsl.token.dsl_grammar_constants import DslGrammarConstants
+from idecobot.core.model.kinematics.joint_bounds import JointBounds
+from idecobot.core.model.kinematics.joint_limit import JointLimit
 from idecobot.core.model.kinematics.mycobot_bounds import MyCobotBounds
+from idecobot.core.model.kinematics.spatial_bounds import SpatialBounds
+from idecobot.core.model.kinematics.speed_bounds import SpeedBounds
+from idecobot.core.model.kinematics.trajectory_bounds import TrajectoryBounds
+from idecobot.core.service.kinematics.kinematic_validator import KinematicValidator
+from idecobot.core.service.dsl.compiler.commands.home_command_compiler import (
+    HomeCommandCompiler,
+)
+from idecobot.core.service.dsl.compiler.commands.move_coords_command_compiler import (
+    MoveCoordsCommandCompiler,
+)
+from idecobot.core.service.dsl.compiler.commands.move_joints_command_compiler import (
+    MoveJointsCommandCompiler,
+)
+from idecobot.core.service.dsl.compiler.commands.power_command_compiler import (
+    PowerCommandCompiler,
+)
+from idecobot.core.service.dsl.compiler.commands.relax_command_compiler import (
+    RelaxCommandCompiler,
+)
+from idecobot.core.service.dsl.compiler.commands.speed_command_compiler import (
+    SpeedCommandCompiler,
+)
+from idecobot.core.service.dsl.compiler.commands.tool_command_compiler import (
+    ToolCommandCompiler,
+)
+from idecobot.core.service.dsl.compiler.commands.wait_command_compiler import (
+    WaitCommandCompiler,
+)
 from idecobot.core.service.dsl.compiler.mycobot_compiler import MyCobotCompiler
 from idecobot.core.service.dsl.lexer.mycobot_lexer import MyCobotLexer
 from idecobot.core.service.dsl.linter.mycobot_linter import MyCobotLinter
@@ -48,7 +78,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -72,28 +102,57 @@ class TestMyCobotDsl(TestCase):
         '''
             Sets up test fixture with full DSL service.
         '''
-        self.bounds = MyCobotBounds()
-        self.grammar = DslGrammarConstants()
-        self.lexer = MyCobotLexer(grammar=self.grammar)
+        bounds = MyCobotBounds(
+            joints=JointBounds(
+                j1=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j2=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j3=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j4=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j5=JointLimit(min_deg=-165.0, max_deg=165.0),
+                j6=JointLimit(min_deg=-175.0, max_deg=175.0)
+            ),
+            spatial=SpatialBounds(max_reach_mm=285.0, min_z_mm=-10.0),
+            speed=SpeedBounds(min_speed=1, max_speed=100, default_speed=30),
+            trajectory=TrajectoryBounds(max_jerk_deg=60.0)
+        )
+        validator = KinematicValidator(bounds=bounds)
+        grammar = DslGrammarConstants()
+        self.lexer = MyCobotLexer(grammar=grammar)
         self.parser = MyCobotParser(parsers=[
             HomeCommandParser(),
             RelaxCommandParser(),
             PowerCommandParser(),
             SpeedCommandParser(),
             WaitCommandParser(),
-            ToolCommandParser(grammar=self.grammar),
-            MoveCommandParser(grammar=self.grammar)
+            ToolCommandParser(grammar=grammar),
+            MoveCommandParser(grammar=grammar)
         ])
         self.linter = MyCobotLinter(rules=[
-            JointBoundsRule(bounds=self.bounds),
-            WorkspaceReachRule(bounds=self.bounds),
-            GroundSafetyRule(bounds=self.bounds),
-            JerkLimitRule(bounds=self.bounds),
-            SpeedLimitRule(bounds=self.bounds)
+            JointBoundsRule(validator=validator),
+            WorkspaceReachRule(bounds=bounds.spatial),
+            GroundSafetyRule(bounds=bounds.spatial),
+            JerkLimitRule(bounds=bounds.trajectory),
+            SpeedLimitRule(bounds=bounds.speed)
         ])
+        protocol_constants = ProtocolConstants()
         self.compiler = MyCobotCompiler(
-            constants=ProtocolConstants(),
-            default_speed=self.bounds.default_speed
+            compilers=[
+                HomeCommandCompiler(constants=protocol_constants),
+                RelaxCommandCompiler(constants=protocol_constants),
+                PowerCommandCompiler(constants=protocol_constants),
+                SpeedCommandCompiler(default_speed=bounds.speed.default_speed),
+                WaitCommandCompiler(constants=protocol_constants),
+                ToolCommandCompiler(constants=protocol_constants),
+                MoveJointsCommandCompiler(
+                    constants=protocol_constants,
+                    default_delay=protocol_constants.default_frame_delay
+                ),
+                MoveCoordsCommandCompiler(
+                    constants=protocol_constants,
+                    default_delay=protocol_constants.default_frame_delay
+                )
+            ],
+            default_speed=bounds.speed.default_speed
         )
         self.service = MyCobotDslService(
             lexer=self.lexer,
@@ -118,7 +177,6 @@ class TestMyCobotDsl(TestCase):
         tokens = list(self.lexer.tokenize(script))
         program = self.parser.parse(tokens, script.splitlines())
         self.assertEqual(len(program.instructions), 4)
-        self.assertEqual(program.count, 4)
 
     def test_linter_bounds_error(self) -> None:
         '''

@@ -27,12 +27,13 @@ from idecobot.core.model.kinematics.mycobot_bounds import MyCobotBounds
 from idecobot.core.service.communication.imycobot_controller import IMyCobotController
 from idecobot.core.service.communication.imycobot_streamer import IMyCobotStreamer
 from idecobot.core.service.dsl.imycobot_dsl_service import IMyCobotDslService
+from idecobot.core.service.kinematics.ikinematic_validator import IKinematicValidator
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -48,6 +49,7 @@ class IService(Protocol):
             :methods:
                 | is_initialized - Checks if core service dependencies are active.
                 | get_bounds - Retrieves robot kinematic boundaries.
+                | get_validator - Retrieves robot kinematic validator service.
                 | get_dsl_service - Retrieves high-level DSL service.
                 | get_streamer - Retrieves trajectory streamer service.
                 | get_controller - Retrieves interactive robot controller.
@@ -65,6 +67,13 @@ class IService(Protocol):
             Retrieves robot kinematic boundaries.
 
             :return: Active MyCobotBounds domain model.
+        '''
+
+    def get_validator(self) -> IKinematicValidator:
+        '''
+            Retrieves robot kinematic validator service.
+
+            :return: Active IKinematicValidator domain service.
         '''
 
     def get_dsl_service(self) -> IMyCobotDslService:
@@ -86,4 +95,11 @@ class IService(Protocol):
             Retrieves interactive robot controller.
 
             :return: IMyCobotController abstraction.
+        '''
+
+    def get_version(self) -> str:
+        '''
+            Returns service implementation version string.
+
+            :return: Component version string.
         '''

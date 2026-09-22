@@ -24,13 +24,15 @@ from __future__ import annotations
 from struct import pack
 
 from idecobot.core.model.communication.protocol_constants import ProtocolConstants
-from idecobot.core.model.communication.serial_defaults import SerialDefaults
+from idecobot.infrastructure.communication.transport.transport_constants import (
+    TransportConstants,
+)
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -43,13 +45,15 @@ class MockSerialTransport:
         It defines:
 
             :attributes:
-                | _defaults - Injected SerialDefaults configuration settings.
-                | _constants - Injected ProtocolConstants protocol framing values.
+                | _transport_constants - Injected TransportConstants configuration settings.
+                | _protocol_constants - Injected ProtocolConstants protocol framing values.
                 | _is_open - Connection status flag.
                 | _simulated_angles - Virtual joint angle positions in degrees.
                 | _rx_buffer - Buffer holding simulated responses to be read.
                 | _history - Log of transmitted byte sequences.
             :methods:
+                | __init__ - Initializes mock serial transport with default home joint positions.
+                | configure - Virtual configuration handler updating target endpoint.
                 | open - Opens mock transport.
                 | close - Closes mock transport.
                 | write - Ingests bytes, updates simulation state, queues responses.
@@ -57,10 +61,11 @@ class MockSerialTransport:
                 | is_open - Returns virtual connection status.
                 | flush - Clears buffers.
                 | get_history - Returns transmitted byte history.
+                | get_version - Returns mock serial transport component version string.
     '''
 
-    _defaults: SerialDefaults
-    _constants: ProtocolConstants
+    _transport_constants: TransportConstants
+    _protocol_constants: ProtocolConstants
     _is_open: bool
     _simulated_angles: list[float]
     _rx_buffer: bytearray
@@ -68,22 +73,31 @@ class MockSerialTransport:
 
     def __init__(
         self,
-        defaults: SerialDefaults,
-        constants: ProtocolConstants
+        transport_constants: TransportConstants,
+        protocol_constants: ProtocolConstants
     ) -> None:
         '''
             Initializes mock serial transport with default home joint positions.
 
-            :param defaults: Injected SerialDefaults configuration instance.
-            :param constants: Injected ProtocolConstants protocol parameters.
+            :param transport_constants: Injected TransportConstants configuration instance.
+            :param protocol_constants: Injected ProtocolConstants protocol parameters.
             :exceptions: None.
         '''
-        self._defaults = defaults
-        self._constants = constants
+        self._transport_constants = transport_constants
+        self._protocol_constants = protocol_constants
         self._is_open = False
         self._simulated_angles = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         self._rx_buffer = bytearray()
         self._history = []
+
+    def configure(self, port: str, baudrate: int) -> None:
+        '''
+            Virtual configuration handler updating target endpoint.
+
+            :param port: Device path or address.
+            :param baudrate: Communication baud rate.
+            :exceptions: None.
+        '''
 
     def open(self) -> bool:
         '''
@@ -113,37 +127,37 @@ class MockSerialTransport:
             :exceptions: None.
         '''
         if not self._is_open:
-            return self._defaults.zero_bytes_written
+            return self._transport_constants.zero_bytes_written
 
         self._history.append(data)
 
         min_cmd_len: int = 4
         if (
             len(data) >= min_cmd_len
-            and data[0] == self._constants.header_byte_1
-            and data[1] == self._constants.header_byte_2
+            and data[0] == self._protocol_constants.header_byte_1
+            and data[1] == self._protocol_constants.header_byte_2
         ):
             cmd_id: int = data[3]
-            if cmd_id == self._constants.cmd_get_angles:
+            if cmd_id == self._protocol_constants.cmd_get_angles:
                 len_byte: int = (
-                    self._constants.min_angles_response_len
-                    + self._constants.length_overhead
+                    self._protocol_constants.min_angles_response_len
+                    + self._protocol_constants.length_overhead
                 )
                 header: bytes = bytes([
-                    self._constants.header_byte_1,
-                    self._constants.header_byte_2,
+                    self._protocol_constants.header_byte_1,
+                    self._protocol_constants.header_byte_2,
                     len_byte,
-                    self._constants.cmd_get_angles
+                    self._protocol_constants.cmd_get_angles
                 ])
                 scaled: list[int] = [
-                    int(round(a * self._constants.angle_scale_factor))
+                    int(round(a * self._protocol_constants.angle_scale_factor))
                     for a in self._simulated_angles
                 ]
                 payload: bytes = pack(
-                    self._constants.format_joints_payload,
+                    self._protocol_constants.format_joints_payload,
                     *scaled
                 )
-                footer: bytes = bytes([self._constants.footer_byte])
+                footer: bytes = bytes([self._protocol_constants.footer_byte])
                 self._rx_buffer.extend(header + payload + footer)
 
         return len(data)
@@ -157,7 +171,7 @@ class MockSerialTransport:
             :exceptions: None.
         '''
         if not self._is_open or not self._rx_buffer:
-            return self._defaults.empty_payload
+            return self._transport_constants.empty_payload
 
         chunk: bytes = bytes(self._rx_buffer[:size])
 
@@ -190,3 +204,13 @@ class MockSerialTransport:
             :exceptions: None.
         '''
         return tuple(self._history)
+
+    def get_version(self) -> str:
+        '''
+            Returns mock serial transport component version string.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__
+

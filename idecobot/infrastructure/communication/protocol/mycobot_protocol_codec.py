@@ -16,22 +16,24 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Defines MyCobotProtocolCodec implementing binary packing and unpacking for serial frames.
+    Defines MyCobotProtocolCodec composite facade delegating to focused protocol components.
 '''
 
 from __future__ import annotations
 
 from collections.abc import Sequence
-from struct import pack, unpack
 
 from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
-from idecobot.core.model.communication.protocol_constants import ProtocolConstants
+from idecobot.infrastructure.communication.protocol.imotion_codec import IMotionCodec
+from idecobot.infrastructure.communication.protocol.iprotocol_framer import IProtocolFramer
+from idecobot.infrastructure.communication.protocol.isystem_codec import ISystemCodec
+from idecobot.infrastructure.communication.protocol.itool_codec import IToolCodec
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -39,14 +41,20 @@ __status__ = 'Updated'
 
 class MyCobotProtocolCodec:
     '''
-        Encodes and decodes binary frames for Elephant Robotics myCobot manipulator.
+        Composite facade encoding and decoding binary frames for Elephant Robotics myCobot manipulator.
 
         It defines:
 
             :attributes:
-                | _constants - Injected ProtocolConstants protocol parameters.
+                | _framer - Injected IProtocolFramer wire framing component.
+                | _motion - Injected IMotionCodec kinematics packing component.
+                | _tool - Injected IToolCodec gripper and end-effector component.
+                | _system - Injected ISystemCodec power and query component.
             :methods:
-                | __init__ - Initializes codec with injected protocol constants.
+                | __init__ - Initializes facade with injected protocol components.
+                | framer - Property returning injected IProtocolFramer.
+                | encode_frame - Encodes MyCobotFrame into complete binary packet.
+                | format_hex - Formats binary frame as uppercase hex string.
                 | pack_angles - Assembles SEND_ANGLES binary frame.
                 | pack_coords - Assembles SEND_COORDS binary frame.
                 | pack_gripper - Assembles SET_GRIPPER binary frame.
@@ -55,18 +63,79 @@ class MyCobotProtocolCodec:
                 | pack_get_angles - Assembles GET_ANGLES query frame.
                 | unpack_angles - Decodes raw response payload into joint angles.
                 | unpack_coords - Decodes raw response payload into coordinates.
+                | get_version - Returns protocol codec version string.
     '''
 
-    _constants: ProtocolConstants
-
-    def __init__(self, constants: ProtocolConstants) -> None:
+    def __init__(
+        self,
+        framer: IProtocolFramer,
+        motion: IMotionCodec,
+        tool: IToolCodec,
+        system: ISystemCodec
+    ) -> None:
         '''
-            Initializes codec with injected protocol parameters.
+            Initializes facade with injected protocol components.
 
-            :param constants: Injected ProtocolConstants instance.
+            :param framer: Injected protocol framer component.
+            :param motion: Injected motion codec component.
+            :param tool: Injected tool codec component.
+            :param system: Injected system codec component.
             :exceptions: None.
         '''
-        self._constants = constants
+        self._framer: IProtocolFramer = framer
+        self._motion: IMotionCodec = motion
+        self._tool: IToolCodec = tool
+        self._system: ISystemCodec = system
+
+    @property
+    def framer(self) -> IProtocolFramer:
+        '''
+            Returns injected protocol framer.
+
+            :return: Injected IProtocolFramer instance.
+        '''
+        return self._framer
+
+    def encode_frame(self, frame: MyCobotFrame) -> bytes:
+        '''
+            Serializes MyCobotFrame into full binary packet with header, length, cmd ID, and footer.
+
+            :param frame: Injected MyCobotFrame data model.
+            :return: Complete serialized binary packet as bytes.
+            :exceptions: None.
+        '''
+        return self._framer.encode_frame(frame)
+
+    def format_hex(self, frame: MyCobotFrame) -> str:
+        '''
+            Formats binary frame as uppercase space-separated hex string.
+
+            :param frame: Injected MyCobotFrame data model.
+            :return: Hexadecimal representation string.
+            :exceptions: None.
+        '''
+        return self._framer.format_hex(frame)
+
+    def extract_response_payload(
+        self,
+        raw_bytes: bytes,
+        min_frame_len: int,
+        prefix_len: int,
+        payload_len: int
+    ) -> bytes | None:
+        '''
+            Extracts validated payload from robot raw response bytes.
+
+            :param raw_bytes: Raw bytes received from robot.
+            :param min_frame_len: Minimum acceptable length for frame.
+            :param prefix_len: Header length prefix offset.
+            :param payload_len: Expected length of payload.
+            :return: Validated payload bytes, or None if invalid.
+            :exceptions: None.
+        '''
+        return self._framer.extract_response_payload(
+            raw_bytes, min_frame_len, prefix_len, payload_len
+        )
 
     def pack_angles(self, angles: Sequence[float], speed: int) -> MyCobotFrame:
         '''
@@ -77,25 +146,7 @@ class MyCobotProtocolCodec:
             :return: Serialized MyCobotFrame instance.
             :exceptions: None.
         '''
-        scaled: list[int] = [
-            int(round(a * self._constants.angle_scale_factor)) for a in angles[:6]
-        ]
-
-        while len(scaled) < 6:
-            scaled.append(0)
-
-        payload: bytes = pack(
-            self._constants.format_angles_command,
-            scaled[0], scaled[1], scaled[2],
-            scaled[3], scaled[4], scaled[5],
-            speed & self._constants.byte_mask
-        )
-
-        return MyCobotFrame(
-            self._constants.cmd_send_angles,
-            payload,
-            self._constants.default_frame_delay
-        )
+        return self._motion.pack_angles(angles, speed)
 
     def pack_coords(
         self,
@@ -112,26 +163,7 @@ class MyCobotProtocolCodec:
             :return: Serialized MyCobotFrame instance.
             :exceptions: None.
         '''
-        scaled: list[int] = [
-            int(round(c * self._constants.coord_scale_factor)) for c in coords[:6]
-        ]
-
-        while len(scaled) < 6:
-            scaled.append(0)
-
-        payload: bytes = pack(
-            self._constants.format_coords_command,
-            scaled[0], scaled[1], scaled[2],
-            scaled[3], scaled[4], scaled[5],
-            speed & self._constants.byte_mask,
-            mode & self._constants.byte_mask
-        )
-
-        return MyCobotFrame(
-            self._constants.cmd_send_coords,
-            payload,
-            self._constants.default_frame_delay
-        )
+        return self._motion.pack_coords(coords, speed, mode)
 
     def pack_gripper(self, state: int, speed: int) -> MyCobotFrame:
         '''
@@ -142,17 +174,7 @@ class MyCobotProtocolCodec:
             :return: Serialized MyCobotFrame instance.
             :exceptions: None.
         '''
-        payload: bytes = pack(
-            self._constants.format_gripper_command,
-            state & self._constants.byte_mask,
-            speed & self._constants.byte_mask
-        )
-
-        return MyCobotFrame(
-            self._constants.cmd_set_gripper,
-            payload,
-            self._constants.gripper_delay
-        )
+        return self._tool.pack_gripper(state, speed)
 
     def pack_relax(self) -> MyCobotFrame:
         '''
@@ -161,11 +183,7 @@ class MyCobotProtocolCodec:
             :return: Serialized MyCobotFrame instance.
             :exceptions: None.
         '''
-        return MyCobotFrame(
-            self._constants.cmd_release_servos,
-            b'',
-            self._constants.servo_delay
-        )
+        return self._system.pack_relax()
 
     def pack_power(self) -> MyCobotFrame:
         '''
@@ -174,11 +192,7 @@ class MyCobotProtocolCodec:
             :return: Serialized MyCobotFrame instance.
             :exceptions: None.
         '''
-        return MyCobotFrame(
-            self._constants.cmd_power_on,
-            b'',
-            self._constants.servo_delay
-        )
+        return self._system.pack_power()
 
     def pack_get_angles(self) -> MyCobotFrame:
         '''
@@ -187,16 +201,9 @@ class MyCobotProtocolCodec:
             :return: Serialized MyCobotFrame instance.
             :exceptions: None.
         '''
-        return MyCobotFrame(
-            self._constants.cmd_get_angles,
-            b'',
-            self._constants.default_frame_delay
-        )
+        return self._system.pack_get_angles()
 
-    def unpack_angles(
-        self,
-        payload: bytes
-    ) -> tuple[float, float, float, float, float, float] | None:
+    def unpack_angles(self, payload: bytes) -> tuple[float, float, float, float, float, float] | None:
         '''
             Decodes raw response payload into joint angles.
 
@@ -204,28 +211,9 @@ class MyCobotProtocolCodec:
             :return: Tuple of 6 angles in degrees, or None if invalid.
             :exceptions: None.
         '''
-        if len(payload) < self._constants.min_angles_response_len:
-            return None
+        return self._motion.unpack_angles(payload)
 
-        raw_vals: tuple[int, ...] = unpack(
-            self._constants.format_joints_payload,
-            payload[:self._constants.min_angles_response_len]
-        )
-        factor: float = self._constants.angle_scale_factor
-
-        return (
-            raw_vals[0] / factor,
-            raw_vals[1] / factor,
-            raw_vals[2] / factor,
-            raw_vals[3] / factor,
-            raw_vals[4] / factor,
-            raw_vals[5] / factor
-        )
-
-    def unpack_coords(
-        self,
-        payload: bytes
-    ) -> tuple[float, float, float, float, float, float] | None:
+    def unpack_coords(self, payload: bytes) -> tuple[float, float, float, float, float, float] | None:
         '''
             Decodes raw response payload into coordinates.
 
@@ -233,20 +221,13 @@ class MyCobotProtocolCodec:
             :return: Tuple of 6 coordinates [X, Y, Z, Rx, Ry, Rz], or None if invalid.
             :exceptions: None.
         '''
-        if len(payload) < self._constants.min_angles_response_len:
-            return None
+        return self._motion.unpack_coords(payload)
 
-        raw_vals: tuple[int, ...] = unpack(
-            self._constants.format_joints_payload,
-            payload[:self._constants.min_angles_response_len]
-        )
-        factor: float = self._constants.coord_scale_factor
+    def get_version(self) -> str:
+        '''
+            Returns the protocol codec component version string.
 
-        return (
-            raw_vals[0] / factor,
-            raw_vals[1] / factor,
-            raw_vals[2] / factor,
-            raw_vals[3] / factor,
-            raw_vals[4] / factor,
-            raw_vals[5] / factor
-        )
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

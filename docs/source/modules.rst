@@ -5,3 +5,4 @@ idecobot
    :maxdepth: 4
 
    idecobot
+   main

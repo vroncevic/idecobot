@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # @brief   idecobot
-# @version 1.0.0
+# @version 1.0.1
 # @date    Mon Sep 21 08:30:00 2026
 # @company None, free software to use 2026
 # @author  Vladimir Roncevic <elektron.ronca@gmail.com>

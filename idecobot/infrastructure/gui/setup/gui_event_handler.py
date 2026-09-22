@@ -24,12 +24,13 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
+from idecobot.infrastructure.gui.setup.igui_event_target import IGUIEventTarget
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -53,9 +54,10 @@ class GUIEventHandler:
                 | stop_stream - Dispatches trajectory streaming stop.
                 | append_log - Dispatches formatted log emission.
                 | on_bytecode - Dispatches compiled bytecode frame sequence.
+                | get_version - Returns event handler implementation version.
     '''
 
-    _target: object | None
+    _target: IGUIEventTarget | None
 
     def __init__(self) -> None:
         '''
@@ -65,11 +67,11 @@ class GUIEventHandler:
         '''
         self._target = None
 
-    def set_target(self, target: object) -> None:
+    def set_target(self, target: IGUIEventTarget) -> None:
         '''
             Sets the active callback delegate.
 
-            :param target: Active callback delegate handling events.
+            :param target: Active callback delegate implementing IGUIEventTarget.
             :exceptions: None.
         '''
         self._target = target
@@ -83,7 +85,7 @@ class GUIEventHandler:
             :return: True if connected successfully, False otherwise.
             :exceptions: None.
         '''
-        if self._target is not None and hasattr(self._target, 'connect_port'):
+        if self._target is not None:
             return bool(self._target.connect_port(port, baud))
 
         return False
@@ -94,7 +96,7 @@ class GUIEventHandler:
 
             :exceptions: None.
         '''
-        if self._target is not None and hasattr(self._target, 'disconnect_port'):
+        if self._target is not None:
             self._target.disconnect_port()
 
     def run_stream(self) -> None:
@@ -103,7 +105,7 @@ class GUIEventHandler:
 
             :exceptions: None.
         '''
-        if self._target is not None and hasattr(self._target, 'run_stream'):
+        if self._target is not None:
             self._target.run_stream()
 
     def pause_stream(self) -> None:
@@ -112,7 +114,7 @@ class GUIEventHandler:
 
             :exceptions: None.
         '''
-        if self._target is not None and hasattr(self._target, 'pause_stream'):
+        if self._target is not None:
             self._target.pause_stream()
 
     def stop_stream(self) -> None:
@@ -121,7 +123,7 @@ class GUIEventHandler:
 
             :exceptions: None.
         '''
-        if self._target is not None and hasattr(self._target, 'stop_stream'):
+        if self._target is not None:
             self._target.stop_stream()
 
     def append_log(self, message: str) -> None:
@@ -131,7 +133,7 @@ class GUIEventHandler:
             :param message: Log message string.
             :exceptions: None.
         '''
-        if self._target is not None and hasattr(self._target, 'append_log'):
+        if self._target is not None:
             self._target.append_log(message)
 
     def on_bytecode(self, frames: Sequence[MyCobotFrame]) -> None:
@@ -141,5 +143,14 @@ class GUIEventHandler:
             :param frames: Compiled robot command frames.
             :exceptions: None.
         '''
-        if self._target is not None and hasattr(self._target, 'on_bytecode'):
+        if self._target is not None:
             self._target.on_bytecode(frames)
+
+    def get_version(self) -> str:
+        '''
+            Returns event handler version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__

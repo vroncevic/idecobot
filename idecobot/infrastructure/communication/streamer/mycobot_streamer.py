@@ -30,12 +30,13 @@ from idecobot.core.model.communication.stream_config import StreamConfig
 from idecobot.core.model.communication.stream_progress import StreamProgress
 from idecobot.core.model.communication.stream_state import StreamState
 from idecobot.core.service.communication.itransport import ITransport
+from idecobot.infrastructure.communication.protocol.iprotocol_framer import IProtocolFramer
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -49,39 +50,55 @@ class MyCobotStreamer:
 
             :attributes:
                 | _transport - Injected ITransport communications channel.
+                | _framer - Injected IProtocolFramer protocol encoder.
                 | _state - Current StreamState lifecycle status.
                 | _current_step - Index of frame currently executing.
                 | _total_steps - Total number of frames in active job.
                 | _stop_event - Event signaling cancellation of stream.
                 | _pause_event - Event signaling pause state.
             :methods:
-                | __init__ - Initializes streamer with injected transport.
+                | __init__ - Initializes streamer with transport and framer.
                 | stream - Initiates transmission worker thread.
-                | pause - Temporarily halts transmission loop.
-                | resume - Resumes transmission loop.
-                | stop - Signals worker thread to terminate.
+                | transmit_frame - Transmits single frame with delay scaling.
+                | worker - Worker thread loop transmitting frames to robot.
+                | pause - Pauses streaming execution.
+                | resume - Resumes streaming execution.
+                | stop - Cancels and terminates streaming execution.
                 | get_state - Returns current StreamState.
-                | get_progress - Returns progress snapshot.
-                | _worker - Worker thread loop transmitting frames.
+                | get_progress - Returns current StreamProgress.
+                | get_version - Returns streamer version string.
     '''
 
     _transport: ITransport
+    _framer: IProtocolFramer
+    _state: StreamState
+    _current_step: int
+    _total_steps: int
+    _stop_event: Event
+    _pause_event: Event
+    _thread: Thread | None
 
-    def __init__(self, transport: ITransport) -> None:
+    def __init__(
+        self,
+        transport: ITransport,
+        framer: IProtocolFramer
+    ) -> None:
         '''
-            Initializes streamer with injected transport abstraction.
+            Initializes MyCobotStreamer with transport and framer.
 
-            :param transport: Injected ITransport channel.
+            :param transport: Injected ITransport instance.
+            :param framer: Injected IProtocolFramer instance.
             :exceptions: None.
         '''
         self._transport = transport
-        self._state: StreamState = StreamState.CONNECTED if transport.is_open() else StreamState.DISCONNECTED
-        self._current_step: int = 0
-        self._total_steps: int = 0
-        self._stop_event: Event = Event()
-        self._pause_event: Event = Event()
+        self._framer = framer
+        self._state = StreamState.CONNECTED if transport.is_open() else StreamState.DISCONNECTED
+        self._current_step = 0
+        self._total_steps = 0
+        self._stop_event = Event()
+        self._pause_event = Event()
         self._pause_event.set()
-        self._thread: Thread | None = None
+        self._thread = None
 
     def stream(
         self,
@@ -98,6 +115,7 @@ class MyCobotStreamer:
         '''
         if not self._transport.is_open() or not frames:
             return False
+
         if self._state == StreamState.STREAMING:
             return False
 
@@ -108,14 +126,29 @@ class MyCobotStreamer:
         self._state = StreamState.STREAMING
 
         self._thread = Thread(
-            target=self._worker,
+            target=self.worker,
             args=(tuple(frames), config),
             daemon=True
         )
         self._thread.start()
+
         return True
 
-    def _worker(
+    def transmit_frame(self, frame: MyCobotFrame, delay_scale: float) -> None:
+        '''
+            Encodes and writes single frame over transport with configured delay.
+
+            :param frame: MyCobotFrame model to transmit.
+            :param delay_scale: Scale factor for execution delay.
+            :exceptions: None.
+        '''
+        raw_bytes: bytes = self._framer.encode_frame(frame)
+        self._transport.write(raw_bytes)
+        sleep_sec: float = frame.delay_after_sec * delay_scale
+        if sleep_sec > 0:
+            sleep(sleep_sec)
+
+    def worker(
         self,
         frames: tuple[MyCobotFrame, ...],
         config: StreamConfig | None
@@ -128,16 +161,14 @@ class MyCobotStreamer:
             :exceptions: None.
         '''
         delay_scale: float = config.playback_rate if config is not None else 1.0
+
         for idx, frame in enumerate(frames):
             if self._stop_event.is_set():
                 break
+
             self._pause_event.wait()
             self._current_step = idx + 1
-            raw_bytes: bytes = frame.to_bytes()
-            self._transport.write(raw_bytes)
-            sleep_sec: float = frame.delay_after_sec * delay_scale
-            if sleep_sec > 0:
-                sleep(sleep_sec)
+            self.transmit_frame(frame, delay_scale)
 
         self._state = StreamState.STOPPED if self._stop_event.is_set() else StreamState.CONNECTED
 
@@ -190,6 +221,7 @@ class MyCobotStreamer:
         percent: float = (
             (self._current_step / self._total_steps) * 100.0 if self._total_steps > 0 else 0.0
         )
+
         return StreamProgress(
             state=self._state,
             current_step=self._current_step,
@@ -197,3 +229,12 @@ class MyCobotStreamer:
             command_name='',
             progress_percent=percent
         )
+
+    def get_version(self) -> str:
+        '''
+            Returns streamer implementation version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__

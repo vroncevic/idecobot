@@ -16,25 +16,22 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Defines MyCobotController implementing interactive robot control and manual jog commands.
+    Defines MyCobotController composite facade delegating to connection, actuator, and telemetry.
 '''
 
 from __future__ import annotations
 
 from collections.abc import Sequence
 
-from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
-from idecobot.core.model.communication.protocol_constants import ProtocolConstants
-from idecobot.core.service.communication.itransport import ITransport
-from idecobot.infrastructure.communication.protocol.imycobot_protocol_codec import (
-    IMyCobotProtocolCodec,
-)
+from idecobot.infrastructure.communication.streamer.iconnection_manager import IConnectionManager
+from idecobot.infrastructure.communication.streamer.irobot_actuator import IRobotActuator
+from idecobot.infrastructure.communication.streamer.irobot_telemetry import IRobotTelemetry
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -42,66 +39,60 @@ __status__ = 'Updated'
 
 class MyCobotController:
     '''
-        Interactive robot controller dispatching manual jog and direct hardware commands.
+        Composite robot controller orchestrating connection, actuation, and telemetry.
 
         It defines:
 
             :attributes:
-                | _transport - Injected ITransport communications channel.
-                | _codec - Injected IMyCobotProtocolCodec frame encoder/decoder.
-                | _constants - Injected ProtocolConstants protocol parameters.
+                | _connection - Injected IConnectionManager session manager.
+                | _actuator - Injected IRobotActuator command executor.
+                | _telemetry - Injected IRobotTelemetry query reader.
             :methods:
-                | __init__ - Initializes controller with injected abstractions.
-                | connect - Opens communication transport.
-                | disconnect - Closes communication transport.
-                | is_connected - Checks if transport is active.
+                | __init__ - Initializes controller facade with injected components.
+                | connect - Connects to manipulator communications port.
+                | disconnect - Disconnects active hardware link.
+                | is_connected - Checks if controller is actively linked.
                 | send_angles - Transmits joint angle target frame.
                 | send_coords - Transmits Cartesian coordinate target frame.
                 | set_gripper - Commands end-effector gripper state.
                 | power - Toggles power on or releases servos.
                 | home - Commands robot to zero home joint state.
                 | read_angles - Queries current joint angles.
-                | _send_frame - Helper writing frame bytes to transport.
+                | get_version - Returns controller version string.
     '''
 
-    _transport: ITransport
-    _codec: IMyCobotProtocolCodec
-    _constants: ProtocolConstants
+    _connection: IConnectionManager
+    _actuator: IRobotActuator
+    _telemetry: IRobotTelemetry
 
     def __init__(
         self,
-        transport: ITransport,
-        codec: IMyCobotProtocolCodec,
-        constants: ProtocolConstants
+        connection: IConnectionManager,
+        actuator: IRobotActuator,
+        telemetry: IRobotTelemetry
     ) -> None:
         '''
-            Initializes controller with injected abstractions.
+            Initializes controller facade with injected components.
 
-            :param transport: Injected ITransport channel.
-            :param codec: Injected IMyCobotProtocolCodec codec.
-            :param constants: Injected ProtocolConstants parameters.
+            :param connection: Injected IConnectionManager instance.
+            :param actuator: Injected IRobotActuator instance.
+            :param telemetry: Injected IRobotTelemetry instance.
             :exceptions: None.
         '''
-        self._transport = transport
-        self._codec = codec
-        self._constants = constants
+        self._connection = connection
+        self._actuator = actuator
+        self._telemetry = telemetry
 
     def connect(self, port: str, baudrate: int = 115200) -> bool:
         '''
-            Connects to manipulator serial communications port.
+            Connects to manipulator communications port.
 
-            :param port: Serial device port path.
+            :param port: Device port path or address.
             :param baudrate: Transmission baud rate.
             :return: True if connected, False otherwise.
             :exceptions: None.
         '''
-        if hasattr(self._transport, '_port'):
-            setattr(self._transport, '_port', port)
-
-        if hasattr(self._transport, '_baudrate'):
-            setattr(self._transport, '_baudrate', baudrate)
-
-        return self._transport.open()
+        return self._connection.connect(port, baudrate)
 
     def disconnect(self) -> None:
         '''
@@ -109,7 +100,7 @@ class MyCobotController:
 
             :exceptions: None.
         '''
-        self._transport.close()
+        self._connection.disconnect()
 
     def is_connected(self) -> bool:
         '''
@@ -118,23 +109,7 @@ class MyCobotController:
             :return: True if open and active, False otherwise.
             :exceptions: None.
         '''
-        return self._transport.is_open()
-
-    def _send_frame(self, frame: MyCobotFrame) -> bool:
-        '''
-            Helper transmitting serialized frame bytes.
-
-            :param frame: MyCobotFrame to send.
-            :return: True if written successfully, False otherwise.
-            :exceptions: None.
-        '''
-        if not self._transport.is_open():
-            return False
-
-        raw_bytes: bytes = frame.to_bytes()
-        written: int = self._transport.write(raw_bytes)
-
-        return written == len(raw_bytes)
+        return self._connection.is_connected()
 
     def send_angles(self, angles: Sequence[float], speed: int) -> bool:
         '''
@@ -145,9 +120,7 @@ class MyCobotController:
             :return: True if sent, False otherwise.
             :exceptions: None.
         '''
-        frame: MyCobotFrame = self._codec.pack_angles(angles, speed)
-
-        return self._send_frame(frame)
+        return self._actuator.send_angles(angles, speed)
 
     def send_coords(
         self,
@@ -164,9 +137,7 @@ class MyCobotController:
             :return: True if sent, False otherwise.
             :exceptions: None.
         '''
-        frame: MyCobotFrame = self._codec.pack_coords(coords, speed, mode)
-
-        return self._send_frame(frame)
+        return self._actuator.send_coords(coords, speed, mode)
 
     def set_gripper(self, state: int, speed: int) -> bool:
         '''
@@ -177,9 +148,7 @@ class MyCobotController:
             :return: True if sent, False otherwise.
             :exceptions: None.
         '''
-        frame: MyCobotFrame = self._codec.pack_gripper(state, speed)
-
-        return self._send_frame(frame)
+        return self._actuator.set_gripper(state, speed)
 
     def power(self, on: bool) -> bool:
         '''
@@ -189,9 +158,7 @@ class MyCobotController:
             :return: True if sent, False otherwise.
             :exceptions: None.
         '''
-        frame: MyCobotFrame = self._codec.pack_power() if on else self._codec.pack_relax()
-
-        return self._send_frame(frame)
+        return self._actuator.power(on)
 
     def home(self, speed: int) -> bool:
         '''
@@ -201,9 +168,7 @@ class MyCobotController:
             :return: True if sent, False otherwise.
             :exceptions: None.
         '''
-        frame: MyCobotFrame = self._codec.pack_angles([0.0, 0.0, 0.0, 0.0, 0.0, 0.0], speed)
-
-        return self._send_frame(frame)
+        return self._actuator.home(speed)
 
     def read_angles(self) -> Sequence[float] | None:
         '''
@@ -212,26 +177,13 @@ class MyCobotController:
             :return: Sequence of 6 angles in degrees, or None if unavailable.
             :exceptions: None.
         '''
-        if not self._transport.is_open():
-            return None
+        return self._telemetry.read_angles()
 
-        query_frame: MyCobotFrame = self._codec.pack_get_angles()
+    def get_version(self) -> str:
+        '''
+            Returns controller version string.
 
-        if not self._send_frame(query_frame):
-            return None
-
-        resp: bytes = self._transport.read(self._constants.full_angles_response_len)
-        prefix_len: int = 4
-        payload_end: int = (
-            prefix_len + self._constants.min_angles_response_len
-        )
-
-        if (
-            len(resp) >= self._constants.min_angles_frame_len
-            and resp[0] == self._constants.header_byte_1
-            and resp[1] == self._constants.header_byte_2
-        ):
-            payload: bytes = resp[prefix_len:payload_end]
-            return self._codec.unpack_angles(payload)
-
-        return None
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

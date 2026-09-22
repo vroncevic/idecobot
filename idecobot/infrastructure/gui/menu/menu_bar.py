@@ -33,7 +33,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -60,6 +60,7 @@ class MenuBar:
                 | new_script - Resets editor to new script.
                 | show_about_dialog - Displays about dialog.
                 | show_dsl_help - Displays DSL help dialog.
+                | get_version - Returns component version string.
                 | constants - Property returning injected MenuBarConstants.
                 | menu_bar - Property returning Tkinter Menu widget.
     '''
@@ -117,6 +118,7 @@ class MenuBar:
             try:
                 content: str = self._storage.load_script(path)
                 self._on_load(content)
+
             except (OSError, ValueError) as err:
                 showinfo(self._constants.title_error_dialog, str(err), parent=self._root)
 
@@ -185,3 +187,13 @@ class MenuBar:
             :return: Tkinter Menu instance.
         '''
         return self._menu_bar
+
+    def get_version(self) -> str:
+        '''
+            Returns component version string.
+
+            :return: Version string.
+            :exceptions: None.
+        '''
+        return __version__
+

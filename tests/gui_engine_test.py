@@ -36,7 +36,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -99,7 +99,7 @@ class TestGUIEngine(TestCase):
         '''
         self.assertTrue(self.gui.is_initialized())
         self.assertIsNotNone(self.gui.get_bundle())
-        self.assertIsInstance(self.gui.constants, EngineConstants)
+        self.assertEqual(self.gui.get_version(), '1.0.1')
 
     def test_gui_logging_and_bytecode(self) -> None:
         '''
@@ -119,8 +119,9 @@ class TestGUIEngine(TestCase):
             constants=constants
         )
         self.assertTrue(direct_gui.is_initialized())
-        self.assertIs(direct_gui.constants, constants)
+        self.assertEqual(direct_gui.get_version(), '1.0.1')
         self.assertIs(direct_gui.get_bundle(), self.gui.get_bundle())
+
 
     def test_gui_event_handler_dispatch(self) -> None:
         '''

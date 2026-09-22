@@ -32,7 +32,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -69,7 +69,7 @@ class SerialConsole:
         parent: Frame,
         palette: ColorPalette,
         fonts: FontConfig,
-        constants: ConsoleConstants | None = None
+        constants: ConsoleConstants
     ) -> None:
         '''
             Initializes console with color tags, scrollbar, and injected constants.
@@ -77,12 +77,12 @@ class SerialConsole:
             :param parent: Parent Frame widget.
             :param palette: Injected ColorPalette color design tokens.
             :param fonts: Injected FontConfig typography tokens.
-            :param constants: Optional injected ConsoleConstants configuration.
+            :param constants: Injected ConsoleConstants configuration.
             :exceptions: None.
         '''
         self._palette = palette
         self._fonts = fonts
-        self._constants = constants if constants is not None else ConsoleConstants()
+        self._constants = constants
 
         self._frame = Frame(parent, bg=self._palette.bg_canvas)
         self._frame.pack(fill=BOTH, expand=True)
@@ -164,16 +164,18 @@ class SerialConsole:
         now_str: str = datetime.now().strftime(
             self._constants.time_format
         )[:self._constants.time_slice_end]
-        tag: str = self._constants.tag_info
 
-        if message.startswith(self._constants.prefix_tx):
-            tag = self._constants.tag_tx
-        elif message.startswith(self._constants.prefix_rx):
-            tag = self._constants.tag_rx
-        elif self._constants.keyword_err in message:
-            tag = self._constants.tag_err
-        elif self._constants.keyword_warn in message:
-            tag = self._constants.tag_warn
+        match message:
+            case msg if msg.startswith(self._constants.prefix_tx):
+                tag: str = self._constants.tag_tx
+            case msg if msg.startswith(self._constants.prefix_rx):
+                tag: str = self._constants.tag_rx
+            case msg if self._constants.keyword_err in msg:
+                tag: str = self._constants.tag_err
+            case msg if self._constants.keyword_warn in msg:
+                tag: str = self._constants.tag_warn
+            case _:
+                tag: str = self._constants.tag_info
 
         self._text.config(state=self._constants.state_normal)
         self._text.insert(END, f'[{now_str}] ', self._constants.tag_time)

@@ -14,6 +14,7 @@ Submodules
    idecobot.infrastructure.gui.setup.gui_bundle_factory_constants
    idecobot.infrastructure.gui.setup.gui_event_handler
    idecobot.infrastructure.gui.setup.igui_event_handler
+   idecobot.infrastructure.gui.setup.igui_event_target
    idecobot.infrastructure.gui.setup.keys
    idecobot.infrastructure.gui.setup.opt_validator
    idecobot.infrastructure.gui.setup.options

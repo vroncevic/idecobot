@@ -36,7 +36,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -61,7 +61,7 @@ class IDECobotBundleValidator:
             :param bundle: The idecobot bundle instance to validate.
             :exceptions:
                 | ATSValueError: The bundle must be provided and have non-None attributes.
-                | ATSTypeError: The bundle attributes must match required interfaces.
+                | ATSTypeError:  The bundle attributes must match required interfaces.
         '''
         ctx: str = 'idecobot_bundle_validator::validate(...)'
         msg_bundle_none: str = 'the idecobot bundle must be provided'
@@ -104,5 +104,6 @@ class IDECobotBundleValidator:
         try:
             cls.validate(bundle)
             return True
+
         except (ATSValueError, ATSTypeError):
             return False

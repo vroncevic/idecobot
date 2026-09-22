@@ -38,7 +38,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -96,11 +96,11 @@ class TestConnectionPanel(TestCase):
         '''
         self.root.destroy()
 
-    def _on_connect(self, port: str, baud: int) -> bool:
+    def on_connect(self, port: str, baud: int) -> bool:
         self.connected_args.append((port, baud))
         return True
 
-    def _on_disconnect(self) -> None:
+    def on_disconnect(self) -> None:
         self.disconnected_called = True
 
     def test_factory_creation(self) -> None:
@@ -110,8 +110,8 @@ class TestConnectionPanel(TestCase):
         panel: ConnectionPanel = ConnectionPanelFactory.create_connection_panel(
             parent=self.parent,
             scanner=self.scanner,
-            on_connect=self._on_connect,
-            on_disconnect=self._on_disconnect,
+            on_connect=self.on_connect,
+            on_disconnect=self.on_disconnect,
             palette=self.palette,
             fonts=self.fonts,
             constants=self.constants
@@ -129,8 +129,8 @@ class TestConnectionPanel(TestCase):
         panel: ConnectionPanel = ConnectionPanelFactory.create_connection_panel(
             parent=self.parent,
             scanner=self.scanner,
-            on_connect=self._on_connect,
-            on_disconnect=self._on_disconnect,
+            on_connect=self.on_connect,
+            on_disconnect=self.on_disconnect,
             palette=self.palette,
             fonts=self.fonts,
             constants=self.constants
@@ -146,8 +146,8 @@ class TestConnectionPanel(TestCase):
         panel: ConnectionPanel = ConnectionPanelFactory.create_connection_panel(
             parent=self.parent,
             scanner=self.scanner,
-            on_connect=self._on_connect,
-            on_disconnect=self._on_disconnect,
+            on_connect=self.on_connect,
+            on_disconnect=self.on_disconnect,
             palette=self.palette,
             fonts=self.fonts,
             constants=self.constants
@@ -168,8 +168,8 @@ class TestConnectionPanel(TestCase):
         panel: ConnectionPanel = ConnectionPanelFactory.create_connection_panel(
             parent=self.parent,
             scanner=self.scanner,
-            on_connect=self._on_connect,
-            on_disconnect=self._on_disconnect,
+            on_connect=self.on_connect,
+            on_disconnect=self.on_disconnect,
             palette=self.palette,
             fonts=self.fonts,
             constants=self.constants
@@ -178,6 +178,7 @@ class TestConnectionPanel(TestCase):
         self.assertTrue(panel.is_connected)
         panel.set_connected(False)
         self.assertFalse(panel.is_connected)
+
 
 
 if __name__ == '__main__':

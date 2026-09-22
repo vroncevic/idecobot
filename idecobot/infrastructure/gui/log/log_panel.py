@@ -34,7 +34,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -76,7 +76,7 @@ class LogPanel:
         notebook: Notebook,
         console: SerialConsole,
         bytecode: BytecodePreview,
-        constants: LogConstants | None = None
+        constants: LogConstants
     ) -> None:
         '''
             Initializes bottom tabbed logging panel with strictly injected dependencies.
@@ -85,14 +85,14 @@ class LogPanel:
             :param notebook: Injected Notebook widget.
             :param console: Injected SerialConsole instance.
             :param bytecode: Injected BytecodePreview instance.
-            :param constants: Optional injected LogConstants configuration.
+            :param constants: Injected LogConstants configuration.
             :exceptions: None.
         '''
         self._frame = frame
         self._notebook = notebook
         self._console = console
         self._bytecode = bytecode
-        self._constants = constants if constants is not None else LogConstants()
+        self._constants = constants
 
     def get_frame(self) -> Frame:
         '''

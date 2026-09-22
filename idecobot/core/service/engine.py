@@ -21,18 +21,17 @@ Info
 
 from __future__ import annotations
 
-from typing import Final
-
 from idecobot.core.model.kinematics.mycobot_bounds import MyCobotBounds
 from idecobot.core.service.communication.imycobot_controller import IMyCobotController
 from idecobot.core.service.communication.imycobot_streamer import IMyCobotStreamer
 from idecobot.core.service.dsl.imycobot_dsl_service import IMyCobotDslService
+from idecobot.core.service.kinematics.ikinematic_validator import IKinematicValidator
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -46,19 +45,23 @@ class Service:
 
             :attributes:
                 | _bounds - MyCobotBounds kinematic limits model.
-                | _dsl_service - High-level DSL compilation and validation service.
+                | _validator - IKinematicValidator domain service.
+                | _dsl_service - High-level DSL parsing, linting, and compilation service.
                 | _streamer - Manipulator trajectory and frame streamer.
                 | _controller - Direct interactive jog and controller service.
             :methods:
                 | __init__ - Initializes the service facade with injected abstractions.
                 | is_initialized - Checks if the service is properly initialized.
                 | get_bounds - Returns the active MyCobotBounds.
+                | get_validator - Returns the active IKinematicValidator.
                 | get_dsl_service - Returns the active IMyCobotDslService.
                 | get_streamer - Returns the active IMyCobotStreamer.
                 | get_controller - Returns the active IMyCobotController.
+                | get_version - Returns service implementation version.
     '''
 
     _bounds: MyCobotBounds
+    _validator: IKinematicValidator
     _dsl_service: IMyCobotDslService
     _streamer: IMyCobotStreamer
     _controller: IMyCobotController
@@ -66,33 +69,37 @@ class Service:
     def __init__(
         self,
         bounds: MyCobotBounds,
+        validator: IKinematicValidator,
         dsl_service: IMyCobotDslService,
         streamer: IMyCobotStreamer,
         controller: IMyCobotController
     ) -> None:
         '''
-            Initializes the service with injected abstractions.
+            Initializes the service facade with injected abstractions.
 
-            :param bounds: MyCobotBounds domain model.
+            :param bounds: MyCobotBounds kinematic boundary model.
+            :param validator: Injected IKinematicValidator domain service.
             :param dsl_service: IMyCobotDslService abstraction.
             :param streamer: IMyCobotStreamer abstraction.
             :param controller: IMyCobotController abstraction.
             :exceptions: None.
         '''
         self._bounds = bounds
+        self._validator = validator
         self._dsl_service = dsl_service
         self._streamer = streamer
         self._controller = controller
 
     def is_initialized(self) -> bool:
         '''
-            Checks if the service is properly initialized.
+            Verifies all sub-services and models are initialized.
 
-            :return: True if initialized, False otherwise.
+            :return: True if all services are present, False otherwise.
             :exceptions: None.
         '''
-        return (
+        return bool(
             self._bounds is not None
+            and self._validator is not None
             and self._dsl_service is not None
             and self._streamer is not None
             and self._controller is not None
@@ -100,12 +107,21 @@ class Service:
 
     def get_bounds(self) -> MyCobotBounds:
         '''
-            Returns the active MyCobotBounds.
+            Returns the active MyCobotBounds model.
 
             :return: MyCobotBounds instance.
             :exceptions: None.
         '''
         return self._bounds
+
+    def get_validator(self) -> IKinematicValidator:
+        '''
+            Returns the active IKinematicValidator domain service.
+
+            :return: IKinematicValidator instance.
+            :exceptions: None.
+        '''
+        return self._validator
 
     def get_dsl_service(self) -> IMyCobotDslService:
         '''
@@ -133,3 +149,12 @@ class Service:
             :exceptions: None.
         '''
         return self._controller
+
+    def get_version(self) -> str:
+        '''
+            Returns service implementation version.
+
+            :return: Component version string.
+            :exceptions: None.
+        '''
+        return __version__

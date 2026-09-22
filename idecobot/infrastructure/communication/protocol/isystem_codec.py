@@ -2,7 +2,7 @@
 
 '''
 Module
-    imycobot_instruction.py
+    isystem_codec.py
 Copyright
     Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
     idecobot is free software: you can redistribute it and/or modify it
@@ -16,68 +16,67 @@ Copyright
     You should have received a copy of the GNU General Public License along
     with this program. If not, see <http://www.gnu.org/licenses/>.
 Info
-    Defines structural interface protocol for an AST instruction node.
+    Defines structural interface protocol for system and servo command frame assembly.
 '''
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from typing import Protocol, runtime_checkable
 
-from idecobot.core.model.dsl.ast.mycobot_command_type import MyCobotCommandType
+from idecobot.core.model.communication.mycobot_frame import MyCobotFrame
 
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
 
 
 @runtime_checkable
-class IMyCobotInstruction(Protocol):
+class ISystemCodec(Protocol):
     '''
-        Defines protocol IMyCobotInstruction with property accessors.
+        Defines structural interface protocol for system-level robot control frame assembly.
 
         It defines:
 
             :methods:
-                | command_type - Returns the command type of the instruction.
-                | line_number - Returns the source line number of the instruction.
-                | parameters - Returns the parameter mapping of the instruction.
-                | raw_text - Returns the raw text string of the instruction.
+                | pack_relax - Assembles RELEASE_SERVOS binary frame.
+                | pack_power - Assembles POWER_ON binary frame.
+                | pack_get_angles - Assembles GET_ANGLES query frame.
+                | get_version - Returns system codec component version string.
     '''
 
-    @property
-    def command_type(self) -> MyCobotCommandType:
+    def pack_relax(self) -> MyCobotFrame:
         '''
-            Returns the command type of the instruction.
+            Assembles RELEASE_SERVOS binary frame.
 
-            :return: The MyCobotCommandType enum value.
-        '''
-
-    @property
-    def line_number(self) -> int:
-        '''
-            Returns the source line number of the instruction.
-
-            :return: 1-indexed line number integer.
+            :return: Serialized MyCobotFrame instance.
+            :exceptions: None.
         '''
 
-    @property
-    def parameters(self) -> Mapping[str, float]:
+    def pack_power(self) -> MyCobotFrame:
         '''
-            Returns the parameter mapping of the instruction.
+            Assembles POWER_ON binary frame.
 
-            :return: Mapping of parameter name to float value.
+            :return: Serialized MyCobotFrame instance.
+            :exceptions: None.
         '''
 
-    @property
-    def raw_text(self) -> str:
+    def pack_get_angles(self) -> MyCobotFrame:
         '''
-            Returns the raw text string of the instruction.
+            Assembles GET_ANGLES query frame.
 
-            :return: Source text line representation.
+            :return: Serialized MyCobotFrame instance.
+            :exceptions: None.
+        '''
+
+    def get_version(self) -> str:
+        '''
+            Returns the system codec component version string.
+
+            :return: Component version string.
+            :exceptions: None.
         '''
