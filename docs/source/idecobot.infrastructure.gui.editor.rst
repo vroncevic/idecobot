@@ -12,7 +12,6 @@ Submodules
    idecobot.infrastructure.gui.editor.editor_coordinator
    idecobot.infrastructure.gui.editor.editor_panel
    idecobot.infrastructure.gui.editor.editor_panel_factory
-   idecobot.infrastructure.gui.editor.example_catalog
    idecobot.infrastructure.gui.editor.syntax_highlighter
 
 Module contents

@@ -29,7 +29,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'GNU General Public License (GPL)'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -70,7 +70,7 @@ def find_package_data(pkg: str) -> list[str]:
 
 setup(
     name='idecobot',
-    version='1.0.2',
+    version='1.0.3',
     description='Elephant Robotics myCobot 280 Motion Studio, DSL Compiler & Serial IDE.',
     author='Vladimir Roncevic',
     author_email='elektron.ronca@gmail.com',

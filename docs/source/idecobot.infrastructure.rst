@@ -10,6 +10,7 @@ Subpackages
    idecobot.infrastructure.cli
    idecobot.infrastructure.command
    idecobot.infrastructure.communication
+   idecobot.infrastructure.diagnostics
    idecobot.infrastructure.gui
    idecobot.infrastructure.storage
 

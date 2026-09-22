@@ -23,11 +23,13 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
+from idecobot.core.service.communication.itransport import ITransport
+
 __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -44,6 +46,7 @@ class IConnectionManager(Protocol):
                 | connect - Establishes communication with hardware on specified port.
                 | disconnect - Terminates active hardware communication link.
                 | is_connected - Verifies if the communication channel is active.
+                | get_transport - Returns the underlying communication transport.
                 | get_version - Returns connection manager component version string.
     '''
 
@@ -68,9 +71,17 @@ class IConnectionManager(Protocol):
             :return: True if active, False otherwise.
         '''
 
+    def get_transport(self) -> ITransport:
+        '''
+            Returns the underlying communication transport.
+
+            :return: Active ITransport instance.
+        '''
+
     def get_version(self) -> str:
         '''
             Returns connection manager component version string.
 
             :return: Component version string.
         '''
+

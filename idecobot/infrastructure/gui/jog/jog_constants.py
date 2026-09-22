@@ -28,7 +28,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -83,6 +83,8 @@ class JogConstants:
                 | state_released - Tool gripper released status text.
                 | action_grip - Action verb for tool grip operation.
                 | action_release - Action verb for tool release operation.
+                | grip_action_grip - Integer action code for gripper close.
+                | grip_action_release - Integer action code for gripper open.
                 | action_power_on - Action verb for servo power on operation.
                 | action_relax - Action verb for servo relax operation.
                 | round_precision - Decimal precision for display and delta values.
@@ -132,6 +134,8 @@ class JogConstants:
     state_released: str = 'Released'
     action_grip: str = 'Grip'
     action_release: str = 'Release'
+    grip_action_grip: int = 1
+    grip_action_release: int = 0
     action_power_on: str = 'Power On'
     action_relax: str = 'Relax'
     round_precision: int = 2

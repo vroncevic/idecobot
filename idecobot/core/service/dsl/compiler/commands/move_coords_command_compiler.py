@@ -35,7 +35,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -102,8 +102,9 @@ class MoveCoordsCommandCompiler:
                 context.coords[idx] = float(instruction.parameters[key])
 
         scaled: list[int] = [
-            int(round(val * self._constants.coord_scale_factor))
-            for val in context.coords
+            int(round(val * self._constants.coord_scale_factor)) if idx < 3
+            else int(round(val * self._constants.angle_scale_factor))
+            for idx, val in enumerate(context.coords)
         ]
         move_speed: int = int(instruction.parameters.get('speed', context.speed))
         mode: int = int(instruction.parameters.get('mode', 0))

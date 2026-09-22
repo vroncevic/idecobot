@@ -71,7 +71,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -118,6 +118,7 @@ class TestMyCobotController(TestCase):
         '''
         conn = ConnectionManager(transport=self.mock_transport)
         self.assertFalse(conn.is_connected())
+        self.assertEqual(conn.get_transport(), self.mock_transport)
         self.assertTrue(conn.connect('/dev/dummy', 115200))
         self.assertTrue(conn.is_connected())
         conn.disconnect()
@@ -161,6 +162,7 @@ class TestMyCobotController(TestCase):
         '''
             Tests full facade delegation.
         '''
+        self.assertEqual(self.controller.get_transport(), self.mock_transport)
         self.assertTrue(self.controller.connect('/dev/ttyUSB0', 115200))
         self.assertTrue(self.controller.is_connected())
         self.assertTrue(self.controller.send_angles([0.0] * 6, speed=30))
@@ -205,11 +207,11 @@ class TestMyCobotController(TestCase):
             constants=self.protocol_constants
         )
 
-        self.assertEqual(conn.get_version(), '1.0.2')
-        self.assertEqual(actuator.get_version(), '1.0.2')
-        self.assertEqual(telemetry.get_version(), '1.0.2')
-        self.assertEqual(self.controller.get_version(), '1.0.2')
-        self.assertEqual(ControllerFactory.get_version(), '1.0.2')
+        self.assertEqual(conn.get_version(), '1.0.3')
+        self.assertEqual(actuator.get_version(), '1.0.3')
+        self.assertEqual(telemetry.get_version(), '1.0.3')
+        self.assertEqual(self.controller.get_version(), '1.0.3')
+        self.assertEqual(ControllerFactory.get_version(), '1.0.3')
 
 
 if __name__ == '__main__':

@@ -41,7 +41,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -84,6 +84,64 @@ class MockDslService:
         return MyCobotProgram(instructions=()), self.diagnostics_to_return
 
 
+class MockWorkspaceService:
+    '''
+        Mock workspace service implementing structural subtyping for IWorkspaceService.
+    '''
+
+    def __init__(
+        self,
+        scripts: list[str] | None = None,
+        workspace_dir: str = '/workspace'
+    ) -> None:
+        self.scripts: list[str] = (
+            scripts
+            if scripts is not None
+            else ['10_routine_pick_and_place.cobot', '01_cmd_power.cobot']
+        )
+        self.workspace_dir: str = workspace_dir
+
+    def ensure_workspace(self) -> str:
+        return self.workspace_dir
+
+    def get_workspace_dir(self) -> str:
+        return self.workspace_dir
+
+    def list_scripts(self) -> list[str]:
+        return sorted(self.scripts)
+
+    def extract_examples(self, force: bool = False) -> bool:
+        return True
+
+    def get_version(self) -> str:
+        return '1.0.3'
+
+
+class MockStorageService:
+    '''
+        Mock storage service implementing structural subtyping for IScriptStorageService.
+    '''
+
+    def __init__(self, files: dict[str, str] | None = None) -> None:
+        self.files: dict[str, str] = (
+            files
+            if files is not None
+            else {
+                '/workspace/10_routine_pick_and_place.cobot': 'MOVE J1 10.0\nWAIT 1.0\n',
+                '/workspace/01_cmd_power.cobot': 'POWER\nWAIT 1.0\n'
+            }
+        )
+
+    def load_script(self, path: str) -> str:
+        if path in self.files:
+            return self.files[path]
+        raise OSError(f'File not found: {path}')
+
+    def save_script(self, path: str, content: str) -> bool:
+        self.files[path] = content
+        return True
+
+
 class TestEditorCoordinator(TestCase):
     '''
         Test cases for EditorCoordinator validation, compilation, and templates.
@@ -92,6 +150,8 @@ class TestEditorCoordinator(TestCase):
 
             :methods:
                 | test_template_catalog - Verifies template loading and catalog listing.
+                | test_load_template_error - Verifies handling of missing template script.
+                | test_properties - Verifies workspace_service, storage, constants properties.
                 | test_validate_code_success - Verifies successful code validation.
                 | test_validate_code_failure - Verifies validation failure with diagnostics.
                 | test_compile_code_success - Verifies bytecode generation on valid code.
@@ -100,14 +160,18 @@ class TestEditorCoordinator(TestCase):
 
     def setUp(self) -> None:
         '''
-            Sets up test fixture with coordinator and mock DSL service.
+            Sets up test fixture with coordinator and mock collaborators.
         '''
         self.mock_service = MockDslService()
+        self.mock_workspace = MockWorkspaceService()
+        self.mock_storage = MockStorageService()
         self.constants = EditorConstants()
         self.logs: list[str] = []
         self.emitted_bytecode: list[Sequence[MyCobotFrame]] = []
         self.coordinator = EditorCoordinator(
             dsl_service=self.mock_service,
+            workspace_service=self.mock_workspace,
+            storage=self.mock_storage,
             on_bytecode=self.emitted_bytecode.append,
             on_log=self.logs.append,
             constants=self.constants
@@ -118,11 +182,27 @@ class TestEditorCoordinator(TestCase):
             Tests listing available templates and loading a specific template.
         '''
         templates: Sequence[str] = self.coordinator.get_available_templates()
-        self.assertIn('Pick and Place', templates)
+        self.assertIn('10_routine_pick_and_place.cobot', templates)
 
-        script: str = self.coordinator.load_template('Pick and Place')
+        script: str = self.coordinator.load_template('10_routine_pick_and_place.cobot')
         self.assertIn('MOVE', script)
-        self.assertTrue(any('Pick and Place' in msg for msg in self.logs))
+        self.assertTrue(any('10_routine_pick_and_place.cobot' in msg for msg in self.logs))
+
+    def test_load_template_error(self) -> None:
+        '''
+            Tests error handling when loading non-existent template script.
+        '''
+        script: str = self.coordinator.load_template('non_existent.cobot')
+        self.assertEqual(script, '')
+        self.assertTrue(any(self.constants.prefix_error in msg for msg in self.logs))
+
+    def test_properties(self) -> None:
+        '''
+            Tests properties expose injected dependencies.
+        '''
+        self.assertIs(self.coordinator.workspace_service, self.mock_workspace)
+        self.assertIs(self.coordinator.storage, self.mock_storage)
+        self.assertEqual(self.coordinator.constants, self.constants)
 
     def test_validate_code_success(self) -> None:
         '''

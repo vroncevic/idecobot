@@ -54,7 +54,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -123,7 +123,7 @@ class TestMyCobotProtocolCodec(TestCase):
         '''
             Tests encoding and decoding of Cartesian coordinates.
         '''
-        original_coords = [150.0, -100.5, 200.25, 0.0, 90.0, -45.0]
+        original_coords = [150.0, -100.5, 200.2, 0.0, 90.0, -45.0]
         frame: MyCobotFrame = self.codec.pack_coords(original_coords, speed=40, mode=0)
         raw: bytes = self.codec.encode_frame(frame)
         self.assertEqual(raw[0], 0xFE)
@@ -212,12 +212,12 @@ class TestMyCobotProtocolCodec(TestCase):
         tool = ToolCodec(constants=self.constants)
         system = SystemCodec(constants=self.constants)
 
-        self.assertEqual(framer.get_version(), '1.0.2')
-        self.assertEqual(motion.get_version(), '1.0.2')
-        self.assertEqual(tool.get_version(), '1.0.2')
-        self.assertEqual(system.get_version(), '1.0.2')
-        self.assertEqual(self.codec.get_version(), '1.0.2')
-        self.assertEqual(ProtocolCodecFactory.get_version(), '1.0.2')
+        self.assertEqual(framer.get_version(), '1.0.3')
+        self.assertEqual(motion.get_version(), '1.0.3')
+        self.assertEqual(tool.get_version(), '1.0.3')
+        self.assertEqual(system.get_version(), '1.0.3')
+        self.assertEqual(self.codec.get_version(), '1.0.3')
+        self.assertEqual(ProtocolCodecFactory.get_version(), '1.0.3')
 
 
 if __name__ == '__main__':

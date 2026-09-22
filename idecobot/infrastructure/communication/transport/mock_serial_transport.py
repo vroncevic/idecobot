@@ -32,7 +32,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -158,6 +158,59 @@ class MockSerialTransport:
                     *scaled
                 )
                 footer: bytes = bytes([self._protocol_constants.footer_byte])
+                self._rx_buffer.extend(header + payload + footer)
+            elif cmd_id == self._protocol_constants.cmd_get_coords:
+                len_byte = (
+                    self._protocol_constants.min_angles_response_len
+                    + self._protocol_constants.length_overhead
+                )
+                header = bytes([
+                    self._protocol_constants.header_byte_1,
+                    self._protocol_constants.header_byte_2,
+                    len_byte,
+                    self._protocol_constants.cmd_get_coords
+                ])
+                sim_coords: list[float] = [100.0, 150.0, 200.0, 0.0, 90.0, 0.0]
+                scaled_coords: list[int] = [
+                    int(round(c * self._protocol_constants.coord_scale_factor))
+                    for c in sim_coords[:3]
+                ] + [
+                    int(round(c * self._protocol_constants.angle_scale_factor))
+                    for c in sim_coords[3:]
+                ]
+                payload = pack(
+                    self._protocol_constants.format_joints_payload,
+                    *scaled_coords
+                )
+                footer = bytes([self._protocol_constants.footer_byte])
+                self._rx_buffer.extend(header + payload + footer)
+            elif cmd_id == self._protocol_constants.cmd_get_servo_temps:
+                len_byte = (
+                    self._protocol_constants.min_servos_response_len
+                    + self._protocol_constants.length_overhead
+                )
+                header = bytes([
+                    self._protocol_constants.header_byte_1,
+                    self._protocol_constants.header_byte_2,
+                    len_byte,
+                    self._protocol_constants.cmd_get_servo_temps
+                ])
+                payload = bytes([28, 29, 30, 31, 32, 33])
+                footer = bytes([self._protocol_constants.footer_byte])
+                self._rx_buffer.extend(header + payload + footer)
+            elif cmd_id == self._protocol_constants.cmd_get_servo_voltages:
+                len_byte = (
+                    self._protocol_constants.min_servos_response_len
+                    + self._protocol_constants.length_overhead
+                )
+                header = bytes([
+                    self._protocol_constants.header_byte_1,
+                    self._protocol_constants.header_byte_2,
+                    len_byte,
+                    self._protocol_constants.cmd_get_servo_voltages
+                ])
+                payload = bytes([82, 82, 81, 81, 80, 80])
+                footer = bytes([self._protocol_constants.footer_byte])
                 self._rx_buffer.extend(header + payload + footer)
 
         return len(data)

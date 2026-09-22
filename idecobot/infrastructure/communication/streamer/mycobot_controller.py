@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from idecobot.core.service.communication.itransport import ITransport
 from idecobot.infrastructure.communication.streamer.iconnection_manager import IConnectionManager
 from idecobot.infrastructure.communication.streamer.irobot_actuator import IRobotActuator
 from idecobot.infrastructure.communication.streamer.irobot_telemetry import IRobotTelemetry
@@ -31,7 +32,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -58,6 +59,7 @@ class MyCobotController:
                 | power - Toggles power on or releases servos.
                 | home - Commands robot to zero home joint state.
                 | read_angles - Queries current joint angles.
+                | get_transport - Returns the underlying communication transport.
                 | get_version - Returns controller version string.
     '''
 
@@ -178,6 +180,15 @@ class MyCobotController:
             :exceptions: None.
         '''
         return self._telemetry.read_angles()
+
+    def get_transport(self) -> ITransport:
+        '''
+            Returns the underlying communication transport.
+
+            :return: Injected ITransport channel instance.
+            :exceptions: None.
+        '''
+        return self._connection.get_transport()
 
     def get_version(self) -> str:
         '''

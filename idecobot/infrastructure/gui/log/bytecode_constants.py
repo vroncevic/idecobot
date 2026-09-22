@@ -28,7 +28,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -46,9 +46,12 @@ class BytecodeConstants:
                 | state_disabled - Tkinter disabled widget state.
                 | wrap_none - Tkinter no line wrapping.
                 | index_start - Text widget start index string.
-                | border_width - Text widget border width.
+                | border_width - Text border width.
                 | pad_text_x - Horizontal padding inside text widget.
                 | pad_text_y - Vertical padding inside text widget.
+                | col_step_width - Fixed character width for step index column.
+                | col_cmd_width - Fixed character width for command hex column.
+                | col_hex_width - Fixed character width for hex frame payload column.
                 | header_template - Formatted header title string.
                 | divider_char - Separator line character.
                 | divider_length - Number of separator characters.
@@ -61,6 +64,9 @@ class BytecodeConstants:
     border_width: int = 0
     pad_text_x: int = 6
     pad_text_y: int = 4
-    header_template: str = 'STEP   CMD    HEX FRAME                                DELAY\n'
+    col_step_width: int = 6
+    col_cmd_width: int = 6
+    col_hex_width: int = 54
+    header_template: str = 'STEP   CMD    HEX FRAME                                              DELAY\n'
     divider_char: str = '-'
-    divider_length: int = 65
+    divider_length: int = 74

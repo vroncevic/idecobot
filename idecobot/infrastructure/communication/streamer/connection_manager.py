@@ -27,7 +27,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -44,6 +44,7 @@ class ConnectionManager:
                 | connect - Configures and opens transport communication link.
                 | disconnect - Closes active hardware transport channel.
                 | is_connected - Checks whether transport channel is actively connected.
+                | get_transport - Returns the underlying transport instance.
                 | get_version - Returns connection manager component version string.
     '''
 
@@ -85,6 +86,15 @@ class ConnectionManager:
             :exceptions: None.
         '''
         return self._transport.is_open()
+
+    def get_transport(self) -> ITransport:
+        '''
+            Returns the underlying transport instance.
+
+            :return: Injected ITransport channel instance.
+            :exceptions: None.
+        '''
+        return self._transport
 
     def get_version(self) -> str:
         '''

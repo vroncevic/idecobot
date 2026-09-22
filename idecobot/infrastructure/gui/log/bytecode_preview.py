@@ -34,7 +34,7 @@ __author__ = 'Vladimir Roncevic'
 __copyright__ = '(C) 2026, https://vroncevic.github.io/idecobot'
 __credits__ = ['Vladimir Roncevic', 'Python Software Foundation']
 __license__ = 'https://github.com/vroncevic/idecobot/blob/dev/LICENSE'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __maintainer__ = 'Vladimir Roncevic'
 __email__ = 'elektron.ronca@gmail.com'
 __status__ = 'Updated'
@@ -140,7 +140,12 @@ class BytecodePreview:
             cmd_hex: str = f'0x{frame.cmd_id:02X}'
             frame_hex: str = self._framer.format_hex(frame)
             delay_str: str = f'{frame.delay_after_sec:.2f}s'
-            line: str = f'{step_num:<6} {cmd_hex:<6} {frame_hex:<40} {delay_str}\n'
+            line: str = (
+                f'{step_num:<{self._constants.col_step_width}} '
+                f'{cmd_hex:<{self._constants.col_cmd_width}} '
+                f'{frame_hex:<{self._constants.col_hex_width}} '
+                f'{delay_str}\n'
+            )
             self._text.insert(END, line)
 
         self._text.config(state=self._constants.state_disabled)
